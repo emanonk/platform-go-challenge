@@ -1,0 +1,30 @@
+package application
+
+type AssetDTO struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	OwnerUserID string `json:"ownerUserId"`
+	Type        string `json:"type"`
+
+	// Insight
+	Text string `json:"text,omitempty"`
+
+	// Chart
+	XAxisTitle string    `json:"xAxisTitle,omitempty"`
+	YAxisTitle string    `json:"yAxisTitle,omitempty"`
+	Data       []float64 `json:"data,omitempty"`
+
+	// Audience (minimal)
+	SampleSize        int64   `json:"sampleSize,omitempty"`
+	TotalRespondents  int64   `json:"totalRespondents,omitempty"`
+	EstimatedReach    int64   `json:"estimatedReach,omitempty"`
+	PopulationPercent float64 `json:"populationPercent,omitempty"`
+}
+
+type FavouriteDTO struct {
+	ID     string   `json:"id"`
+	UserID string   `json:"userId"`
+	Type   string   `json:"type"`
+	Asset  AssetDTO `json:"asset"`
+}
