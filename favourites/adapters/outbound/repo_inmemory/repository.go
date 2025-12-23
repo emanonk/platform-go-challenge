@@ -30,3 +30,8 @@ func (r *FavouriteRepository) FindByUser(_ context.Context, userID string) ([]do
 	}
 	return out, nil
 }
+
+func (r *FavouriteRepository) Save(_ context.Context, fav domain.FavouriteEntity) error {
+	r.data = append(r.data, fav)
+	return nil
+}

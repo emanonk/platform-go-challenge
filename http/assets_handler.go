@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/manos/favourites/http/auth"
+
 	application "github.com/manos/favourites/assets/application"
 )
 
@@ -17,6 +19,9 @@ func NewAssetsHandler(svc *application.AssetService) *AssetsHandler {
 }
 
 func (h *AssetsHandler) GetAssetByID(w http.ResponseWriter, r *http.Request) {
+
+	userId, _ := auth.SubjectFromContext(r.Context())
+
 	// GET /assets/{type}/{id}
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(parts) != 3 || parts[0] != "assets" {
@@ -34,11 +39,11 @@ func (h *AssetsHandler) GetAssetByID(w http.ResponseWriter, r *http.Request) {
 
 	switch assetType {
 	case "insights":
-		result, err = h.svc.GetInsight(r.Context(), assetID)
+		result, err = h.svc.GetInsight(r.Context(), userId, assetID)
 	case "audiences":
-		result, err = h.svc.GetAudience(r.Context(), assetID)
+		result, err = h.svc.GetAudience(r.Context(), userId, assetID)
 	case "charts":
-		result, err = h.svc.GetChart(r.Context(), assetID)
+		result, err = h.svc.GetChart(r.Context(), userId, assetID)
 	default:
 		http.NotFound(w, r)
 		return

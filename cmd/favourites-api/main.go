@@ -8,6 +8,7 @@ import (
 	assetrepo "github.com/manos/favourites/assets/adapters/outbound/repo_inmemory"
 	assetapplication "github.com/manos/favourites/assets/application"
 	"github.com/manos/favourites/favourites/adapters/outbound/assets_client"
+	"github.com/manos/favourites/http/auth"
 
 	favrepo "github.com/manos/favourites/favourites/adapters/outbound/repo_inmemory"
 	favouritesapplication "github.com/manos/favourites/favourites/application"
@@ -29,7 +30,18 @@ func main() {
 	favHandler := httpapi.NewFavouritesHandler(favService)
 	assetsHandler := httpapi.NewAssetsHandler(assetsService)
 
-	router := httpapi.NewRouter(favHandler, assetsHandler)
+	pubKey, err := auth.LoadRSAPublicKey("public.pem")
+	if err != nil {
+		log.Fatalf("failed to load public key: %v", err)
+	}
+
+	jwtCfg := auth.JWTConfig{
+		PublicKey: pubKey,
+		Issuer:    "favourites-api",
+		Audience:  "web",
+	}
+
+	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler)
 
 	server := &http.Server{
 		Addr:              ":8080",

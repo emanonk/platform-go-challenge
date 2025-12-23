@@ -15,8 +15,8 @@ func NewAssetClient(assetService assetsapp.AssetsService) *Client {
 	return &Client{assetService: assetService}
 }
 
-func (c *Client) GetInsight(ctx context.Context, assetID string) (application.AssetDTO, error) {
-	a, err := c.assetService.GetInsight(ctx, assetID)
+func (c *Client) GetInsight(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
+	a, err := c.assetService.GetInsight(ctx, userId, assetId)
 	if err != nil {
 		return application.AssetDTO{}, err
 	}
@@ -30,8 +30,8 @@ func (c *Client) GetInsight(ctx context.Context, assetID string) (application.As
 	}, nil
 }
 
-func (c *Client) GetAudience(ctx context.Context, assetID string) (application.AssetDTO, error) {
-	a, err := c.assetService.GetAudience(ctx, assetID)
+func (c *Client) GetAudience(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
+	a, err := c.assetService.GetAudience(ctx, userId, assetId)
 	if err != nil {
 		return application.AssetDTO{}, err
 	}
@@ -48,8 +48,8 @@ func (c *Client) GetAudience(ctx context.Context, assetID string) (application.A
 	}, nil
 }
 
-func (c *Client) GetChart(ctx context.Context, assetID string) (application.AssetDTO, error) {
-	a, err := c.assetService.GetChart(ctx, assetID)
+func (c *Client) GetChart(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
+	a, err := c.assetService.GetChart(ctx, userId, assetId)
 	if err != nil {
 		return application.AssetDTO{}, err
 	}

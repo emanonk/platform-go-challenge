@@ -16,8 +16,8 @@ func NewFavouriteService(repo FavouriteRepository, assets AssetClient) *Favourit
 	return &FavouriteService{repo: repo, assets: assets}
 }
 
-func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userID string) ([]FavouriteDTO, error) {
-	favs, err := s.repo.FindByUser(ctx, userID)
+func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId string) ([]FavouriteDTO, error) {
+	favs, err := s.repo.FindByUser(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +29,11 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userID stri
 
 		switch fav.Type {
 		case domain.FavouriteInsight:
-			asset, err = s.assets.GetInsight(ctx, fav.AssetID)
+			asset, err = s.assets.GetInsight(ctx, userId, fav.AssetID)
 		case domain.FavouriteAudience:
-			asset, err = s.assets.GetAudience(ctx, fav.AssetID)
+			asset, err = s.assets.GetAudience(ctx, userId, fav.AssetID)
 		case domain.FavouriteChart:
-			asset, err = s.assets.GetChart(ctx, fav.AssetID)
+			asset, err = s.assets.GetChart(ctx, userId, fav.AssetID)
 		default:
 			return nil, fmt.Errorf("unknown favourite type: %s", fav.Type)
 		}
@@ -43,12 +43,45 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userID stri
 		}
 
 		out = append(out, FavouriteDTO{
-			ID:     fav.ID,
-			UserID: fav.UserID,
-			Type:   string(fav.Type),
-			Asset:  asset,
+			ID:          fav.ID,
+			UserID:      fav.UserID,
+			Type:        string(fav.Type),
+			Description: fav.Description,
+			Asset:       asset,
 		})
 	}
 
 	return out, nil
+}
+
+func (s *FavouriteService) AddFavourite(ctx context.Context, userId string, favType string, assetId string, description string) (string, error) {
+
+	// var asset AssetDTO
+	var err error
+
+	favouriteType := domain.FavouriteType(favType)
+	switch favouriteType {
+	case domain.FavouriteInsight:
+		_, err = s.assets.GetInsight(ctx, userId, assetId)
+	case domain.FavouriteAudience:
+		_, err = s.assets.GetAudience(ctx, userId, assetId)
+	case domain.FavouriteChart:
+		_, err = s.assets.GetChart(ctx, userId, assetId)
+	default:
+		return "", fmt.Errorf("unknown favourite type: %s", favouriteType)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	fav, err := domain.NewFavourite(userId, domain.FavouriteType(favType), assetId, description)
+	if err != nil {
+		return "", err
+	}
+	err = s.repo.Save(ctx, fav)
+	if err != nil {
+		return "", err
+	}
+	return fav.ID, nil
 }

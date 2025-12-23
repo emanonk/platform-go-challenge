@@ -23,8 +23,15 @@ type AssetDTO struct {
 }
 
 type FavouriteDTO struct {
-	ID     string   `json:"id"`
-	UserID string   `json:"userId"`
-	Type   string   `json:"type"`
-	Asset  AssetDTO `json:"asset"`
+	ID          string   `json:"id"`
+	UserID      string   `json:"userId"`
+	Type        string   `json:"type"`
+	Description string   `json:"description"`
+	Asset       AssetDTO `json:"asset"`
+}
+
+type AddFavouriteRequest struct {
+	Type        string `json:"type"`
+	AssetID     string `json:"assetId"`
+	Description string `json:"description"`
 }

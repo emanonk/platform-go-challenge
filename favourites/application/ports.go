@@ -8,12 +8,13 @@ import (
 
 type FavouriteRepository interface {
 	FindByUser(ctx context.Context, userID string) ([]domain.FavouriteEntity, error)
+	Save(ctx context.Context, fav domain.FavouriteEntity) error
 }
 
 // Outbound port: Favourites depends on assets through this interface.
 // Return favourites-owned DTOs (anti-corruption layer).
 type AssetClient interface {
-	GetInsight(ctx context.Context, assetID string) (AssetDTO, error)
-	GetAudience(ctx context.Context, assetID string) (AssetDTO, error)
-	GetChart(ctx context.Context, assetID string) (AssetDTO, error)
+	GetInsight(ctx context.Context, userId string, assetId string) (AssetDTO, error)
+	GetAudience(ctx context.Context, userId string, assetId string) (AssetDTO, error)
+	GetChart(ctx context.Context, userId string, assetId string) (AssetDTO, error)
 }

@@ -20,29 +20,29 @@ var ErrAssetNotFound = errors.New("asset not found")
 // --- Facade ---
 
 type AssetsService interface {
-	GetInsight(ctx context.Context, assetID string) (domain.InsightAsset, error)
-	GetAudience(ctx context.Context, assetID string) (domain.AudienceAsset, error)
-	GetChart(ctx context.Context, assetID string) (domain.ChartAsset, error)
+	GetInsight(ctx context.Context, userId string, assetId string) (domain.InsightAsset, error)
+	GetAudience(ctx context.Context, userId string, assetId string) (domain.AudienceAsset, error)
+	GetChart(ctx context.Context, userId string, assetId string) (domain.ChartAsset, error)
 }
 
-func (f *AssetService) GetInsight(ctx context.Context, assetID string) (domain.InsightAsset, error) {
-	a, ok := f.repo.GetInsight(ctx, assetID)
+func (f *AssetService) GetInsight(ctx context.Context, userId string, assetId string) (domain.InsightAsset, error) {
+	a, ok := f.repo.GetInsight(ctx, userId, assetId)
 	if !ok {
 		return domain.InsightAsset{}, ErrAssetNotFound
 	}
 	return a, nil
 }
 
-func (f *AssetService) GetAudience(ctx context.Context, assetID string) (domain.AudienceAsset, error) {
-	a, ok := f.repo.GetAudience(ctx, assetID)
+func (f *AssetService) GetAudience(ctx context.Context, userId string, assetId string) (domain.AudienceAsset, error) {
+	a, ok := f.repo.GetAudience(ctx, userId, assetId)
 	if !ok {
 		return domain.AudienceAsset{}, ErrAssetNotFound
 	}
 	return a, nil
 }
 
-func (f *AssetService) GetChart(ctx context.Context, assetID string) (domain.ChartAsset, error) {
-	a, ok := f.repo.GetChart(ctx, assetID)
+func (f *AssetService) GetChart(ctx context.Context, userId string, assetId string) (domain.ChartAsset, error) {
+	a, ok := f.repo.GetChart(ctx, userId, assetId)
 	if !ok {
 		return domain.ChartAsset{}, ErrAssetNotFound
 	}
