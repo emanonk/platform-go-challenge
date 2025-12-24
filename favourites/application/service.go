@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 
 	"github.com/manos/favourites/favourites/domain"
 )
@@ -26,12 +25,6 @@ func NewFavouriteService(repo FavouriteRepository, assets AssetClient) *Favourit
 
 func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId string, page int, limit int) (FavouritePageDTO, error) {
 	log.Printf("svc favourites: list user=%s page=%d limit=%d", userId, page, limit)
-	favs, err := s.repo.FindByUser(ctx, userId)
-	if err != nil {
-		log.Printf("svc favourites: list user=%s err=%v", userId, err)
-		return FavouritePageDTO{}, err
-	}
-
 	if limit <= 0 {
 		limit = 20
 	}
@@ -39,40 +32,70 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		page = 1
 	}
 
-	// stabilize order for pagination
-	sort.Slice(favs, func(i, j int) bool {
-		return favs[i].ID < favs[j].ID
-	})
-
-	total := len(favs)
 	offset := (page - 1) * limit
-	if offset > total {
-		offset = total
+
+	favs, total, err := s.repo.FindByUserPage(ctx, userId, offset, limit)
+	if err != nil {
+		log.Printf("svc favourites: list user=%s err=%v", userId, err)
+		return FavouritePageDTO{}, err
 	}
-	end := offset + limit
-	if end > total {
-		end = total
-	}
 
-	out := make([]FavouriteDTO, 0, end-offset)
-
-	//todo change ask of list of assets ids to get all at once
-	for _, fav := range favs[offset:end] {
-		var asset AssetDTO
-
+	// collect ids per type to batch asset fetches
+	insightIDs := make([]string, 0)
+	audienceIDs := make([]string, 0)
+	chartIDs := make([]string, 0)
+	for _, fav := range favs {
 		switch fav.Type {
 		case domain.FavouriteInsight:
-			asset, err = s.assets.GetInsight(ctx, userId, fav.AssetID)
+			insightIDs = append(insightIDs, fav.AssetID)
 		case domain.FavouriteAudience:
-			asset, err = s.assets.GetAudience(ctx, userId, fav.AssetID)
+			audienceIDs = append(audienceIDs, fav.AssetID)
 		case domain.FavouriteChart:
-			asset, err = s.assets.GetChart(ctx, userId, fav.AssetID)
+			chartIDs = append(chartIDs, fav.AssetID)
 		default:
 			return FavouritePageDTO{}, fmt.Errorf("unknown favourite type: %s", fav.Type)
 		}
+	}
 
+	insights := make(map[string]AssetDTO)
+	audiences := make(map[string]AssetDTO)
+	charts := make(map[string]AssetDTO)
+
+	if len(insightIDs) > 0 {
+		insights, err = s.assets.GetInsights(ctx, userId, insightIDs)
 		if err != nil {
 			return FavouritePageDTO{}, err
+		}
+	}
+	if len(audienceIDs) > 0 {
+		audiences, err = s.assets.GetAudiences(ctx, userId, audienceIDs)
+		if err != nil {
+			return FavouritePageDTO{}, err
+		}
+	}
+	if len(chartIDs) > 0 {
+		charts, err = s.assets.GetCharts(ctx, userId, chartIDs)
+		if err != nil {
+			return FavouritePageDTO{}, err
+		}
+	}
+
+	out := make([]FavouriteDTO, 0, len(favs))
+
+	for _, fav := range favs {
+		var asset AssetDTO
+		var ok bool
+		switch fav.Type {
+		case domain.FavouriteInsight:
+			asset, ok = insights[fav.AssetID]
+		case domain.FavouriteAudience:
+			asset, ok = audiences[fav.AssetID]
+		case domain.FavouriteChart:
+			asset, ok = charts[fav.AssetID]
+		}
+
+		if !ok {
+			return FavouritePageDTO{}, fmt.Errorf("asset %s for favourite %s not found", fav.AssetID, fav.ID)
 		}
 
 		out = append(out, FavouriteDTO{

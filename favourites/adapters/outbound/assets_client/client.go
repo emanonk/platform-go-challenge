@@ -64,3 +64,65 @@ func (c *Client) GetChart(ctx context.Context, userId string, assetId string) (a
 		Data:        a.Data,
 	}, nil
 }
+
+func (c *Client) GetInsights(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
+	assets, err := c.assetService.GetInsights(ctx, userId, assetIds)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]application.AssetDTO, len(assets))
+	for id, a := range assets {
+		out[id] = application.AssetDTO{
+			ID:          a.Id,
+			Name:        a.Name,
+			Description: a.Description,
+			OwnerUserID: a.UserId,
+			Type:        "INSIGHT",
+			Text:        a.Text,
+		}
+	}
+	return out, nil
+}
+
+func (c *Client) GetAudiences(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
+	assets, err := c.assetService.GetAudiences(ctx, userId, assetIds)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]application.AssetDTO, len(assets))
+	for id, a := range assets {
+		out[id] = application.AssetDTO{
+			ID:                a.Id,
+			Name:              a.Name,
+			Description:       a.Description,
+			OwnerUserID:       a.UserId,
+			Type:              "AUDIENCE",
+			SampleSize:        a.SampleSize,
+			TotalRespondents:  a.TotalRespondents,
+			EstimatedReach:    a.EstimatedReach,
+			PopulationPercent: a.PopulationPercent,
+		}
+	}
+	return out, nil
+}
+
+func (c *Client) GetCharts(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
+	assets, err := c.assetService.GetCharts(ctx, userId, assetIds)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]application.AssetDTO, len(assets))
+	for id, a := range assets {
+		out[id] = application.AssetDTO{
+			ID:          a.Id,
+			Name:        a.Name,
+			Description: a.Description,
+			OwnerUserID: a.UserId,
+			Type:        "CHART",
+			XAxisTitle:  a.XAxisTitle,
+			YAxisTitle:  a.YAxisTitle,
+			Data:        a.Data,
+		}
+	}
+	return out, nil
+}

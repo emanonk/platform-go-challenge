@@ -3,6 +3,7 @@ package repo_inmemory
 import (
 	"context"
 	"log"
+	"sort"
 	"sync"
 
 	"github.com/manos/favourites/favourites/application"
@@ -36,6 +37,34 @@ func (r *FavouriteRepository) FindByUser(_ context.Context, userID string) ([]do
 	}
 	log.Printf("repo favourites: find by user=%s count=%d", userID, len(out))
 	return out, nil
+}
+
+func (r *FavouriteRepository) FindByUserPage(_ context.Context, userID string, offset int, limit int) ([]domain.FavouriteEntity, int, error) {
+	r.mu.RLock()
+	userFavs := make([]domain.FavouriteEntity, 0)
+	for _, f := range r.data {
+		if f.UserID == userID {
+			userFavs = append(userFavs, f)
+		}
+	}
+	r.mu.RUnlock()
+
+	sort.Slice(userFavs, func(i, j int) bool {
+		return userFavs[i].ID < userFavs[j].ID
+	})
+
+	total := len(userFavs)
+	if offset > total {
+		offset = total
+	}
+	end := offset + limit
+	if end > total {
+		end = total
+	}
+
+	page := userFavs[offset:end]
+	log.Printf("repo favourites: find by user paged user=%s offset=%d limit=%d returned=%d total=%d", userID, offset, limit, len(page), total)
+	return page, total, nil
 }
 
 func (r *FavouriteRepository) Save(_ context.Context, fav domain.FavouriteEntity) error {

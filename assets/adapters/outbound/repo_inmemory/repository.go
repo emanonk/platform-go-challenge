@@ -75,6 +75,19 @@ func (r *AssetRepository) GetInsight(_ context.Context, userId string, id string
 	return a, ok
 }
 
+func (r *AssetRepository) GetInsights(_ context.Context, userId string, ids []string) map[string]domain.InsightAsset {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make(map[string]domain.InsightAsset, len(ids))
+	for _, id := range ids {
+		if a, ok := r.insights[id]; ok && a.UserId == userId {
+			out[id] = a
+		}
+	}
+	log.Printf("repo assets: insights batch user=%s requested=%d returned=%d", userId, len(ids), len(out))
+	return out
+}
+
 func (r *AssetRepository) GetAudience(_ context.Context, userId string, id string) (domain.AudienceAsset, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -87,6 +100,19 @@ func (r *AssetRepository) GetAudience(_ context.Context, userId string, id strin
 	return a, ok
 }
 
+func (r *AssetRepository) GetAudiences(_ context.Context, userId string, ids []string) map[string]domain.AudienceAsset {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make(map[string]domain.AudienceAsset, len(ids))
+	for _, id := range ids {
+		if a, ok := r.audiences[id]; ok && a.UserId == userId {
+			out[id] = a
+		}
+	}
+	log.Printf("repo assets: audiences batch user=%s requested=%d returned=%d", userId, len(ids), len(out))
+	return out
+}
+
 func (r *AssetRepository) GetChart(_ context.Context, userId string, id string) (domain.ChartAsset, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -97,4 +123,17 @@ func (r *AssetRepository) GetChart(_ context.Context, userId string, id string) 
 	}
 	log.Printf("repo assets: chart id=%s user=%s hit=%t", id, userId, ok)
 	return a, ok
+}
+
+func (r *AssetRepository) GetCharts(_ context.Context, userId string, ids []string) map[string]domain.ChartAsset {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make(map[string]domain.ChartAsset, len(ids))
+	for _, id := range ids {
+		if a, ok := r.charts[id]; ok && a.UserId == userId {
+			out[id] = a
+		}
+	}
+	log.Printf("repo assets: charts batch user=%s requested=%d returned=%d", userId, len(ids), len(out))
+	return out
 }
