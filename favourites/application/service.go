@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/manos/favourites/favourites/domain"
 )
@@ -23,8 +24,10 @@ func NewFavouriteService(repo FavouriteRepository, assets AssetClient) *Favourit
 }
 
 func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId string) ([]FavouriteDTO, error) {
+	log.Printf("svc favourites: list user=%s", userId)
 	favs, err := s.repo.FindByUser(ctx, userId)
 	if err != nil {
+		log.Printf("svc favourites: list user=%s err=%v", userId, err)
 		return nil, err
 	}
 
@@ -66,6 +69,7 @@ func (s *FavouriteService) AddFavourite(ctx context.Context, userId string, favT
 	// var asset AssetDTO
 	var err error
 
+	log.Printf("svc favourites: add user=%s type=%s asset=%s", userId, favType, assetId)
 	favouriteType := domain.FavouriteType(favType)
 	switch favouriteType {
 	case domain.FavouriteInsight:
@@ -79,27 +83,34 @@ func (s *FavouriteService) AddFavourite(ctx context.Context, userId string, favT
 	}
 
 	if err != nil {
+		log.Printf("svc favourites: add user=%s type=%s asset=%s validation err=%v", userId, favType, assetId, err)
 		return "", err
 	}
 
 	fav, err := domain.NewFavourite(userId, domain.FavouriteType(favType), assetId, description)
 	if err != nil {
+		log.Printf("svc favourites: add user=%s type=%s asset=%s build err=%v", userId, favType, assetId, err)
 		return "", err
 	}
 	err = s.repo.Save(ctx, fav)
 	if err != nil {
+		log.Printf("svc favourites: add user=%s type=%s asset=%s save err=%v", userId, favType, assetId, err)
 		return "", err
 	}
+	log.Printf("svc favourites: add user=%s favourite_id=%s created", userId, fav.ID)
 	return fav.ID, nil
 }
 
 func (s *FavouriteService) DeleteFavourite(ctx context.Context, userId string, favouriteID string) error {
+	log.Printf("svc favourites: delete user=%s favourite_id=%s", userId, favouriteID)
 	fav, err := s.repo.FindByID(ctx, favouriteID)
 	if err != nil {
+		log.Printf("svc favourites: delete user=%s favourite_id=%s find err=%v", userId, favouriteID, err)
 		return err
 	}
 
 	if fav.UserID != userId {
+		log.Printf("svc favourites: delete user=%s favourite_id=%s forbidden owner=%s", userId, favouriteID, fav.UserID)
 		return ErrFavouriteForbidden
 	}
 

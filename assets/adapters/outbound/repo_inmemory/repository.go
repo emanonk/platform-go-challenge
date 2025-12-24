@@ -2,6 +2,7 @@ package repo_inmemory
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/manos/favourites/assets/domain"
@@ -63,23 +64,29 @@ func NewInMemoryAssetRepository() *AssetRepository {
 func (r *AssetRepository) GetInsight(_ context.Context, userId string, id string) (domain.InsightAsset, bool) {
 	a, ok := r.insights[id]
 	if a.UserId != userId {
+		log.Printf("repo assets: insight id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
 		return domain.InsightAsset{}, false
 	}
+	log.Printf("repo assets: insight id=%s user=%s hit=%t", id, userId, ok)
 	return a, ok
 }
 
 func (r *AssetRepository) GetAudience(_ context.Context, userId string, id string) (domain.AudienceAsset, bool) {
 	a, ok := r.audiences[id]
 	if a.UserId != userId {
+		log.Printf("repo assets: audience id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
 		return domain.AudienceAsset{}, false
 	}
+	log.Printf("repo assets: audience id=%s user=%s hit=%t", id, userId, ok)
 	return a, ok
 }
 
 func (r *AssetRepository) GetChart(_ context.Context, userId string, id string) (domain.ChartAsset, bool) {
 	a, ok := r.charts[id]
 	if a.UserId != userId {
+		log.Printf("repo assets: chart id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
 		return domain.ChartAsset{}, false
 	}
+	log.Printf("repo assets: chart id=%s user=%s hit=%t", id, userId, ok)
 	return a, ok
 }

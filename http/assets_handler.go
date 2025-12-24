@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -31,6 +32,7 @@ func (h *AssetsHandler) GetAssetByID(w http.ResponseWriter, r *http.Request) {
 
 	assetType := parts[1]
 	assetID := parts[2]
+	log.Printf("assets: %s %s user=%s type=%s id=%s", r.Method, r.URL.Path, userId, assetType, assetID)
 
 	var (
 		result any
@@ -45,15 +47,18 @@ func (h *AssetsHandler) GetAssetByID(w http.ResponseWriter, r *http.Request) {
 	case "charts":
 		result, err = h.svc.GetChart(r.Context(), userId, assetID)
 	default:
+		log.Printf("assets: user=%s type=%s id=%s unknown type", userId, assetType, assetID)
 		http.NotFound(w, r)
 		return
 	}
 
 	if err != nil {
+		log.Printf("assets: user=%s type=%s id=%s err=%v", userId, assetType, assetID, err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
+	log.Printf("assets: user=%s type=%s id=%s served", userId, assetType, assetID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }

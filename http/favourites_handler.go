@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -28,7 +29,7 @@ func (h *FavouritesHandler) HandleFavourites(w http.ResponseWriter, r *http.Requ
 	// DELETE /favourites/{favouriteId}
 	// PATCH /favourites/{favouriteId}
 
-	fmt.Println("r.URL.Path:", r.URL.Path)
+	log.Printf("favourites: %s %s user=%s", r.Method, r.URL.Path, userId)
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if parts[0] != "favourites" {
 		http.NotFound(w, r)
@@ -81,11 +82,12 @@ func (h *FavouritesHandler) HandleFavourites(w http.ResponseWriter, r *http.Requ
 func (h *FavouritesHandler) listFavorites(w http.ResponseWriter, r *http.Request, userId string) {
 	favs, err := h.svc.GetFavouritesForUser(r.Context(), userId)
 
-	fmt.Println("Favourites Result:", favs, err)
 	if err != nil {
+		log.Printf("favourites list: user=%s err=%v", userId, err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	log.Printf("favourites list: user=%s count=%d", userId, len(favs))
 	writeJSON(w, http.StatusOK, favs)
 }
 
@@ -93,15 +95,18 @@ func (h *FavouritesHandler) AddFavourite(w http.ResponseWriter, r *http.Request,
 	var newFavourite application.AddFavouriteRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&newFavourite); err != nil {
+		log.Printf("favourites add: user=%s decode error: %v", userId, err)
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Add Favourite Request:", newFavourite)
+	log.Printf("favourites add: user=%s type=%s asset=%s", userId, newFavourite.Type, newFavourite.AssetID)
 	fav, err := h.svc.AddFavourite(r.Context(), userId, newFavourite.Type, newFavourite.AssetID, newFavourite.Description)
 	if err != nil {
+		log.Printf("favourites add: user=%s type=%s asset=%s err=%v", userId, newFavourite.Type, newFavourite.AssetID, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Printf("favourites add: user=%s favourite_id=%s created", userId, fav)
 	writeJSON(w, http.StatusCreated, fav)
 }
 
@@ -110,14 +115,18 @@ func (h *FavouritesHandler) deleteFavourite(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		switch {
 		case errors.Is(err, application.ErrFavouriteNotFound):
+			log.Printf("favourites delete: user=%s favourite_id=%s not found", userId, favouriteID)
 			http.NotFound(w, r)
 		case errors.Is(err, application.ErrFavouriteForbidden):
+			log.Printf("favourites delete: user=%s favourite_id=%s forbidden", userId, favouriteID)
 			http.Error(w, "forbidden", http.StatusForbidden)
 		default:
+			log.Printf("favourites delete: user=%s favourite_id=%s err=%v", userId, favouriteID, err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 		}
 		return
 	}
 
+	log.Printf("favourites delete: user=%s favourite_id=%s deleted", userId, favouriteID)
 	w.WriteHeader(http.StatusNoContent)
 }

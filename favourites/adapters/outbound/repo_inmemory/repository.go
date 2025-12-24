@@ -2,6 +2,7 @@ package repo_inmemory
 
 import (
 	"context"
+	"log"
 
 	"github.com/manos/favourites/favourites/application"
 	"github.com/manos/favourites/favourites/domain"
@@ -30,20 +31,24 @@ func (r *FavouriteRepository) FindByUser(_ context.Context, userID string) ([]do
 			out = append(out, f)
 		}
 	}
+	log.Printf("repo favourites: find by user=%s count=%d", userID, len(out))
 	return out, nil
 }
 
 func (r *FavouriteRepository) Save(_ context.Context, fav domain.FavouriteEntity) error {
 	r.data = append(r.data, fav)
+	log.Printf("repo favourites: saved favourite_id=%s user=%s type=%s", fav.ID, fav.UserID, fav.Type)
 	return nil
 }
 
 func (r *FavouriteRepository) FindByID(_ context.Context, favouriteID string) (domain.FavouriteEntity, error) {
 	for _, f := range r.data {
 		if f.ID == favouriteID {
+			log.Printf("repo favourites: find by id=%s hit user=%s", favouriteID, f.UserID)
 			return f, nil
 		}
 	}
+	log.Printf("repo favourites: find by id=%s not found", favouriteID)
 	return domain.FavouriteEntity{}, application.ErrFavouriteNotFound
 }
 
@@ -51,8 +56,10 @@ func (r *FavouriteRepository) Delete(_ context.Context, favouriteID string) erro
 	for i, f := range r.data {
 		if f.ID == favouriteID {
 			r.data = append(r.data[:i], r.data[i+1:]...)
+			log.Printf("repo favourites: deleted id=%s user=%s", favouriteID, f.UserID)
 			return nil
 		}
 	}
+	log.Printf("repo favourites: delete id=%s not found", favouriteID)
 	return application.ErrFavouriteNotFound
 }
