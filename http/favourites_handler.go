@@ -65,6 +65,11 @@ func (h *FavouritesHandler) HandleFavourites(w http.ResponseWriter, r *http.Requ
 		h.deleteFavourite(w, r, userId, parts[1])
 	case http.MethodPatch:
 		// handle updating a favourite
+		if len(parts) != 2 {
+			http.NotFound(w, r)
+			return
+		}
+		h.updateFavourite(w, r, userId, parts[1])
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -128,5 +133,36 @@ func (h *FavouritesHandler) deleteFavourite(w http.ResponseWriter, r *http.Reque
 	}
 
 	log.Printf("favourites delete: user=%s favourite_id=%s deleted", userId, favouriteID)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+type updateFavouriteRequest struct {
+	Description string `json:"description"`
+}
+
+func (h *FavouritesHandler) updateFavourite(w http.ResponseWriter, r *http.Request, userId, favouriteID string) {
+	var req updateFavouriteRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("favourites update: user=%s favourite_id=%s decode error: %v", userId, favouriteID, err)
+		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("favourites update: user=%s favourite_id=%s", userId, favouriteID)
+	if err := h.svc.UpdateFavouriteDescription(r.Context(), userId, favouriteID, req.Description); err != nil {
+		switch {
+		case errors.Is(err, application.ErrFavouriteNotFound):
+			log.Printf("favourites update: user=%s favourite_id=%s not found", userId, favouriteID)
+			http.NotFound(w, r)
+		case errors.Is(err, application.ErrFavouriteForbidden):
+			log.Printf("favourites update: user=%s favourite_id=%s forbidden", userId, favouriteID)
+			http.Error(w, "forbidden", http.StatusForbidden)
+		default:
+			log.Printf("favourites update: user=%s favourite_id=%s err=%v", userId, favouriteID, err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+		return
+	}
+
 	w.WriteHeader(http.StatusNoContent)
 }

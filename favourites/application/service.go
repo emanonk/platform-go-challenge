@@ -116,3 +116,25 @@ func (s *FavouriteService) DeleteFavourite(ctx context.Context, userId string, f
 
 	return s.repo.Delete(ctx, favouriteID)
 }
+
+func (s *FavouriteService) UpdateFavouriteDescription(ctx context.Context, userId string, favouriteID string, description string) error {
+	log.Printf("svc favourites: update description user=%s favourite_id=%s", userId, favouriteID)
+	fav, err := s.repo.FindByID(ctx, favouriteID)
+	if err != nil {
+		log.Printf("svc favourites: update description user=%s favourite_id=%s find err=%v", userId, favouriteID, err)
+		return err
+	}
+
+	if fav.UserID != userId {
+		log.Printf("svc favourites: update description user=%s favourite_id=%s forbidden owner=%s", userId, favouriteID, fav.UserID)
+		return ErrFavouriteForbidden
+	}
+
+	if err := s.repo.UpdateDescription(ctx, favouriteID, description); err != nil {
+		log.Printf("svc favourites: update description user=%s favourite_id=%s save err=%v", userId, favouriteID, err)
+		return err
+	}
+
+	log.Printf("svc favourites: update description user=%s favourite_id=%s updated", userId, favouriteID)
+	return nil
+}

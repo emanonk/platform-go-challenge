@@ -11,6 +11,7 @@ type FavouriteRepository interface {
 	Save(ctx context.Context, fav domain.FavouriteEntity) error
 	FindByID(ctx context.Context, favouriteID string) (domain.FavouriteEntity, error)
 	Delete(ctx context.Context, favouriteID string) error
+	UpdateDescription(ctx context.Context, favouriteID string, description string) error
 }
 
 // Outbound port: Favourites depends on assets through this interface.

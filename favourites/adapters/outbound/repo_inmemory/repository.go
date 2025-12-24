@@ -63,3 +63,15 @@ func (r *FavouriteRepository) Delete(_ context.Context, favouriteID string) erro
 	log.Printf("repo favourites: delete id=%s not found", favouriteID)
 	return application.ErrFavouriteNotFound
 }
+
+func (r *FavouriteRepository) UpdateDescription(_ context.Context, favouriteID string, description string) error {
+	for i, f := range r.data {
+		if f.ID == favouriteID {
+			r.data[i].Description = description
+			log.Printf("repo favourites: updated description id=%s user=%s", favouriteID, f.UserID)
+			return nil
+		}
+	}
+	log.Printf("repo favourites: update description id=%s not found", favouriteID)
+	return application.ErrFavouriteNotFound
+}
