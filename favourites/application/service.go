@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/manos/favourites/favourites/domain"
 )
 
 var (
-	ErrFavouriteNotFound = errors.New("favourite not found")
+	ErrFavouriteNotFound  = errors.New("favourite not found")
 	ErrFavouriteForbidden = errors.New("favourite does not belong to user")
 )
 
@@ -23,18 +24,40 @@ func NewFavouriteService(repo FavouriteRepository, assets AssetClient) *Favourit
 	return &FavouriteService{repo: repo, assets: assets}
 }
 
-func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId string) ([]FavouriteDTO, error) {
-	log.Printf("svc favourites: list user=%s", userId)
+func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId string, page int, limit int) (FavouritePageDTO, error) {
+	log.Printf("svc favourites: list user=%s page=%d limit=%d", userId, page, limit)
 	favs, err := s.repo.FindByUser(ctx, userId)
 	if err != nil {
 		log.Printf("svc favourites: list user=%s err=%v", userId, err)
-		return nil, err
+		return FavouritePageDTO{}, err
 	}
 
-	out := make([]FavouriteDTO, 0, len(favs))
+	if limit <= 0 {
+		limit = 20
+	}
+	if page <= 0 {
+		page = 1
+	}
+
+	// stabilize order for pagination
+	sort.Slice(favs, func(i, j int) bool {
+		return favs[i].ID < favs[j].ID
+	})
+
+	total := len(favs)
+	offset := (page - 1) * limit
+	if offset > total {
+		offset = total
+	}
+	end := offset + limit
+	if end > total {
+		end = total
+	}
+
+	out := make([]FavouriteDTO, 0, end-offset)
 
 	//todo change ask of list of assets ids to get all at once
-	for _, fav := range favs {
+	for _, fav := range favs[offset:end] {
 		var asset AssetDTO
 
 		switch fav.Type {
@@ -45,11 +68,11 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		case domain.FavouriteChart:
 			asset, err = s.assets.GetChart(ctx, userId, fav.AssetID)
 		default:
-			return nil, fmt.Errorf("unknown favourite type: %s", fav.Type)
+			return FavouritePageDTO{}, fmt.Errorf("unknown favourite type: %s", fav.Type)
 		}
 
 		if err != nil {
-			return nil, err
+			return FavouritePageDTO{}, err
 		}
 
 		out = append(out, FavouriteDTO{
@@ -61,7 +84,18 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		})
 	}
 
-	return out, nil
+	totalPages := 0
+	if limit > 0 {
+		totalPages = (total + limit - 1) / limit
+	}
+
+	return FavouritePageDTO{
+		Items:      out,
+		Page:       page,
+		Limit:      limit,
+		Total:      total,
+		TotalPages: totalPages,
+	}, nil
 }
 
 func (s *FavouriteService) AddFavourite(ctx context.Context, userId string, favType string, assetId string, description string) (string, error) {

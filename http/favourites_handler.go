@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/manos/favourites/http/auth"
@@ -85,14 +86,40 @@ func (h *FavouritesHandler) HandleFavourites(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *FavouritesHandler) listFavorites(w http.ResponseWriter, r *http.Request, userId string) {
-	favs, err := h.svc.GetFavouritesForUser(r.Context(), userId)
+	const (
+		defaultLimit = 20
+		maxLimit     = 100
+	)
+
+	page := 1
+	limit := defaultLimit
+
+	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+			page = p
+		} else {
+			http.Error(w, "invalid page", http.StatusBadRequest)
+			return
+		}
+	}
+
+	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= maxLimit {
+			limit = l
+		} else {
+			http.Error(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+	}
+
+	favs, err := h.svc.GetFavouritesForUser(r.Context(), userId, page, limit)
 
 	if err != nil {
 		log.Printf("favourites list: user=%s err=%v", userId, err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("favourites list: user=%s count=%d", userId, len(favs))
+	log.Printf("favourites list: user=%s page=%d limit=%d count=%d total=%d", userId, page, limit, len(favs.Items), favs.Total)
 	writeJSON(w, http.StatusOK, favs)
 }
 
