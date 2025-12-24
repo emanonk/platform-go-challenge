@@ -42,6 +42,7 @@ func NewRouter(
 
 	// favourites
 	mux.Handle("/favourites", protectedFavourites)
+	mux.Handle("/favourites/", protectedFavourites)
 
 	// assets
 	mux.Handle("/assets", protectedAssets)

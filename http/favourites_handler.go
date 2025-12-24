@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -56,6 +57,11 @@ func (h *FavouritesHandler) HandleFavourites(w http.ResponseWriter, r *http.Requ
 		h.AddFavourite(w, r, userId)
 	case http.MethodDelete:
 		// handle deleting a favourite
+		if len(parts) != 2 {
+			http.NotFound(w, r)
+			return
+		}
+		h.deleteFavourite(w, r, userId, parts[1])
 	case http.MethodPatch:
 		// handle updating a favourite
 	default:
@@ -97,4 +103,21 @@ func (h *FavouritesHandler) AddFavourite(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	writeJSON(w, http.StatusCreated, fav)
+}
+
+func (h *FavouritesHandler) deleteFavourite(w http.ResponseWriter, r *http.Request, userId, favouriteID string) {
+	err := h.svc.DeleteFavourite(r.Context(), userId, favouriteID)
+	if err != nil {
+		switch {
+		case errors.Is(err, application.ErrFavouriteNotFound):
+			http.NotFound(w, r)
+		case errors.Is(err, application.ErrFavouriteForbidden):
+			http.Error(w, "forbidden", http.StatusForbidden)
+		default:
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/manos/favourites/assets/domain"
 )
 
+// todo add mutex for concurrency in real app
 type AssetRepository struct {
 	insights  map[string]domain.InsightAsset
 	audiences map[string]domain.AudienceAsset

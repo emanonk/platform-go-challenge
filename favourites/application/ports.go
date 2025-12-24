@@ -9,6 +9,8 @@ import (
 type FavouriteRepository interface {
 	FindByUser(ctx context.Context, userID string) ([]domain.FavouriteEntity, error)
 	Save(ctx context.Context, fav domain.FavouriteEntity) error
+	FindByID(ctx context.Context, favouriteID string) (domain.FavouriteEntity, error)
+	Delete(ctx context.Context, favouriteID string) error
 }
 
 // Outbound port: Favourites depends on assets through this interface.

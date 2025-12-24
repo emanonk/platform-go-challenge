@@ -2,9 +2,15 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/manos/favourites/favourites/domain"
+)
+
+var (
+	ErrFavouriteNotFound = errors.New("favourite not found")
+	ErrFavouriteForbidden = errors.New("favourite does not belong to user")
 )
 
 type FavouriteService struct {
@@ -24,6 +30,7 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 
 	out := make([]FavouriteDTO, 0, len(favs))
 
+	//todo change ask of list of assets ids to get all at once
 	for _, fav := range favs {
 		var asset AssetDTO
 
@@ -84,4 +91,17 @@ func (s *FavouriteService) AddFavourite(ctx context.Context, userId string, favT
 		return "", err
 	}
 	return fav.ID, nil
+}
+
+func (s *FavouriteService) DeleteFavourite(ctx context.Context, userId string, favouriteID string) error {
+	fav, err := s.repo.FindByID(ctx, favouriteID)
+	if err != nil {
+		return err
+	}
+
+	if fav.UserID != userId {
+		return ErrFavouriteForbidden
+	}
+
+	return s.repo.Delete(ctx, favouriteID)
 }
