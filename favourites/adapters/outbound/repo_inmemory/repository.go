@@ -40,8 +40,8 @@ func (r *FavouriteRepository) FindByUser(_ context.Context, userID string) ([]do
 
 func (r *FavouriteRepository) Save(_ context.Context, fav domain.FavouriteEntity) error {
 	r.mu.Lock()
+	defer r.mu.Unlock()
 	r.data[fav.ID] = fav
-	r.mu.Unlock()
 	log.Printf("repo favourites: saved favourite_id=%s user=%s type=%s", fav.ID, fav.UserID, fav.Type)
 	return nil
 }
@@ -63,7 +63,6 @@ func (r *FavouriteRepository) Delete(_ context.Context, favouriteID string) erro
 	defer r.mu.Unlock()
 	if f, ok := r.data[favouriteID]; ok {
 		delete(r.data, favouriteID)
-		r.mu.Unlock()
 		log.Printf("repo favourites: deleted id=%s user=%s", favouriteID, f.UserID)
 		return nil
 	}
