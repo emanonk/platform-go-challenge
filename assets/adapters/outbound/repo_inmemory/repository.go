@@ -3,6 +3,7 @@ package repo_inmemory
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/manos/favourites/assets/domain"
@@ -10,6 +11,7 @@ import (
 
 // todo add mutex for concurrency in real app
 type AssetRepository struct {
+	mu        sync.RWMutex
 	insights  map[string]domain.InsightAsset
 	audiences map[string]domain.AudienceAsset
 	charts    map[string]domain.ChartAsset
@@ -62,6 +64,8 @@ func NewInMemoryAssetRepository() *AssetRepository {
 }
 
 func (r *AssetRepository) GetInsight(_ context.Context, userId string, id string) (domain.InsightAsset, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	a, ok := r.insights[id]
 	if a.UserId != userId {
 		log.Printf("repo assets: insight id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
@@ -72,6 +76,8 @@ func (r *AssetRepository) GetInsight(_ context.Context, userId string, id string
 }
 
 func (r *AssetRepository) GetAudience(_ context.Context, userId string, id string) (domain.AudienceAsset, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	a, ok := r.audiences[id]
 	if a.UserId != userId {
 		log.Printf("repo assets: audience id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
@@ -82,6 +88,8 @@ func (r *AssetRepository) GetAudience(_ context.Context, userId string, id strin
 }
 
 func (r *AssetRepository) GetChart(_ context.Context, userId string, id string) (domain.ChartAsset, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	a, ok := r.charts[id]
 	if a.UserId != userId {
 		log.Printf("repo assets: chart id=%s user=%s forbidden owner=%s", id, userId, a.UserId)
