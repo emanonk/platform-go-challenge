@@ -46,6 +46,7 @@ func NewRouter(
 
 	// assets
 	mux.Handle("/assets", protectedAssets)
+	mux.Handle("/assets/", protectedAssets)
 
 	return &Router{
 		mux:  mux,
