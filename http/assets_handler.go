@@ -1,14 +1,13 @@
 package httpapi
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/manos/favourites/http/auth"
 
 	application "github.com/manos/favourites/assets/application"
+	"github.com/manos/favourites/assets/domain"
+	favapp "github.com/manos/favourites/favourites/application"
+	"github.com/manos/favourites/http/auth"
 )
 
 type AssetsHandler struct {
@@ -19,46 +18,76 @@ func NewAssetsHandler(svc *application.AssetService) *AssetsHandler {
 	return &AssetsHandler{svc: svc}
 }
 
-func (h *AssetsHandler) GetAssetByID(w http.ResponseWriter, r *http.Request) {
-
+func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetAssetsTypeIdParamsType, assetID string) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 
-	// GET /assets/{type}/{id}
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if len(parts) != 3 || parts[0] != "assets" {
-		http.NotFound(w, r)
-		return
-	}
-
-	assetType := parts[1]
-	assetID := parts[2]
-	log.Printf("assets: %s %s user=%s type=%s id=%s", r.Method, r.URL.Path, userId, assetType, assetID)
+	log.Printf("assets: %s %s user=%s type=%s id=%s", r.Method, r.URL.Path, userId, pType, assetID)
 
 	var (
 		result any
 		err    error
 	)
 
-	switch assetType {
-	case "insights":
+	switch pType {
+	case Insights:
 		result, err = h.svc.GetInsight(r.Context(), userId, assetID)
-	case "audiences":
+	case Audiences:
 		result, err = h.svc.GetAudience(r.Context(), userId, assetID)
-	case "charts":
+	case Charts:
 		result, err = h.svc.GetChart(r.Context(), userId, assetID)
 	default:
-		log.Printf("assets: user=%s type=%s id=%s unknown type", userId, assetType, assetID)
+		log.Printf("assets: user=%s type=%s id=%s unknown type", userId, pType, assetID)
 		http.NotFound(w, r)
 		return
 	}
 
 	if err != nil {
-		log.Printf("assets: user=%s type=%s id=%s err=%v", userId, assetType, assetID, err)
+		log.Printf("assets: user=%s type=%s id=%s err=%v", userId, pType, assetID, err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	log.Printf("assets: user=%s type=%s id=%s served", userId, assetType, assetID)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	switch v := result.(type) {
+	case domain.InsightAsset:
+		dto := favapp.AssetDTO{
+			ID:          v.Id,
+			Name:        v.Name,
+			Description: v.Description,
+			OwnerUserID: v.UserId,
+			Type:        "INSIGHT",
+			Text:        v.Text,
+		}
+		writeJSON(w, http.StatusOK, assetToAPI(dto))
+	case domain.AudienceAsset:
+		dto := favapp.AssetDTO{
+			ID:                v.Id,
+			Name:              v.Name,
+			Description:       v.Description,
+			OwnerUserID:       v.UserId,
+			Type:              "AUDIENCE",
+			SampleSize:        v.SampleSize,
+			TotalRespondents:  v.TotalRespondents,
+			EstimatedReach:    v.EstimatedReach,
+			PopulationPercent: v.PopulationPercent,
+		}
+		writeJSON(w, http.StatusOK, assetToAPI(dto))
+	case domain.ChartAsset:
+		dto := favapp.AssetDTO{
+			ID:          v.Id,
+			Name:        v.Name,
+			Description: v.Description,
+			OwnerUserID: v.UserId,
+			Type:        "CHART",
+			XAxisTitle:  v.XAxisTitle,
+			YAxisTitle:  v.YAxisTitle,
+			Data:        v.Data,
+		}
+		writeJSON(w, http.StatusOK, assetToAPI(dto))
+	default:
+		log.Printf("assets: user=%s type=%s id=%s unknown asset type", userId, pType, assetID)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("assets: user=%s type=%s id=%s served", userId, pType, assetID)
 }

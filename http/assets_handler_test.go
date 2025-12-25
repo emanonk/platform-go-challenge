@@ -49,7 +49,7 @@ func TestAssetsHandler_GetInsight(t *testing.T) {
 	ctx := context.WithValue(req.Context(), auth.ContextKeySubject, "user-1")
 	rec := httptest.NewRecorder()
 
-	h.GetAssetByID(rec, req.WithContext(ctx))
+	h.GetAssetsTypeId(rec, req.WithContext(ctx), Insights, "ins-1")
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)

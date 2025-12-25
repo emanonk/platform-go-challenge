@@ -19,6 +19,8 @@ func main() {
 	)
 	flag.Parse()
 
+	fmt.Println("Generating JWT token...", *user, *issuer, *audience, *minutes, *keyPath)
+
 	keyData, err := os.ReadFile(*keyPath)
 	if err != nil {
 		panic(err)

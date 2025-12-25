@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	assetrepo "github.com/manos/favourites/assets/adapters/outbound/repo_inmemory"
@@ -30,7 +31,12 @@ func main() {
 	favHandler := httpapi.NewFavouritesHandler(favService)
 	assetsHandler := httpapi.NewAssetsHandler(assetsService)
 
-	pubKey, err := auth.LoadRSAPublicKey("public.pem")
+	pubKeyPath := os.Getenv("PUBLIC_KEY_PATH")
+	if pubKeyPath == "" {
+		pubKeyPath = "public.pem"
+	}
+
+	pubKey, err := auth.LoadRSAPublicKey(pubKeyPath)
 	if err != nil {
 		log.Fatalf("failed to load public key: %v", err)
 	}
