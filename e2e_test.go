@@ -19,6 +19,7 @@ import (
 	"github.com/manos/favourites/favourites/adapters/outbound/assets_client"
 	favrepo "github.com/manos/favourites/favourites/adapters/outbound/repo_inmemory"
 	favouritesapplication "github.com/manos/favourites/favourites/application"
+	"github.com/manos/favourites/config"
 	httpapi "github.com/manos/favourites/http"
 	"github.com/manos/favourites/http/auth"
 
@@ -81,6 +82,11 @@ func TestAssetsEndpointHappyPath(t *testing.T) {
 func newTestServer(t *testing.T) (*httptest.Server, string) {
 	t.Helper()
 
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
 	assetsRepo := assetrepo.NewInMemoryAssetRepository()
 	assetsService := assetapplication.NewAssetService(assetsRepo)
 
@@ -88,31 +94,36 @@ func newTestServer(t *testing.T) (*httptest.Server, string) {
 	favRepo := favrepo.NewInMemoryFavouriteRepository()
 	favService := favouritesapplication.NewFavouriteService(favRepo, assetClient)
 
-	favHandler := httpapi.NewFavouritesHandler(favService)
+	favHandler := httpapi.NewFavouritesHandler(
+		favService,
+		cfg.Pagination.DefaultPage,
+		cfg.Pagination.DefaultLimit,
+		cfg.Pagination.MaxLimit,
+	)
 	assetsHandler := httpapi.NewAssetsHandler(assetsService)
 
-	pubKey, err := auth.LoadRSAPublicKey("public.pem")
+	pubKey, err := auth.LoadRSAPublicKey(cfg.Auth.PublicKeyPath)
 	if err != nil {
 		t.Fatalf("load public key: %v", err)
 	}
 
 	jwtCfg := auth.JWTConfig{
 		PublicKey: pubKey,
-		Issuer:    "favourites-api",
-		Audience:  "web",
+		Issuer:    cfg.Auth.Issuer,
+		Audience:  cfg.Auth.Audience,
 	}
 
 	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler)
 	ts := httptest.NewServer(router)
 
-	token := mintToken(t, "user-1", jwtCfg)
+	token := mintToken(t, "user-1", cfg)
 	return ts, token
 }
 
-func mintToken(t *testing.T, sub string, cfg auth.JWTConfig) string {
+func mintToken(t *testing.T, sub string, cfg config.AppConfig) string {
 	t.Helper()
 
-	keyBytes, err := os.ReadFile("private.pem")
+	keyBytes, err := os.ReadFile(cfg.Auth.PrivateKeyPath)
 	if err != nil {
 		t.Fatalf("read private key: %v", err)
 	}
@@ -128,8 +139,8 @@ func mintToken(t *testing.T, sub string, cfg auth.JWTConfig) string {
 
 	claims := jwt.RegisteredClaims{
 		Subject:   sub,
-		Issuer:    cfg.Issuer,
-		Audience:  jwt.ClaimStrings{cfg.Audience},
+		Issuer:    cfg.Auth.Issuer,
+		Audience:  jwt.ClaimStrings{cfg.Auth.Audience},
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}

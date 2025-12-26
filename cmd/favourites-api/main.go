@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	assetrepo "github.com/manos/favourites/assets/adapters/outbound/repo_inmemory"
@@ -13,10 +12,16 @@ import (
 
 	favrepo "github.com/manos/favourites/favourites/adapters/outbound/repo_inmemory"
 	favouritesapplication "github.com/manos/favourites/favourites/application"
+	"github.com/manos/favourites/config"
 	httpapi "github.com/manos/favourites/http"
 )
 
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
 	// assets hexagon
 	assetsRepo := assetrepo.NewInMemoryAssetRepository()
 	assetsService := assetapplication.NewAssetService(assetsRepo)
@@ -28,13 +33,15 @@ func main() {
 	favService := favouritesapplication.NewFavouriteService(favRepo, assetClient)
 
 	// http handlers
-	favHandler := httpapi.NewFavouritesHandler(favService)
+	favHandler := httpapi.NewFavouritesHandler(
+		favService,
+		cfg.Pagination.DefaultPage,
+		cfg.Pagination.DefaultLimit,
+		cfg.Pagination.MaxLimit,
+	)
 	assetsHandler := httpapi.NewAssetsHandler(assetsService)
 
-	pubKeyPath := os.Getenv("PUBLIC_KEY_PATH")
-	if pubKeyPath == "" {
-		pubKeyPath = "public.pem"
-	}
+	pubKeyPath := cfg.Auth.PublicKeyPath
 
 	pubKey, err := auth.LoadRSAPublicKey(pubKeyPath)
 	if err != nil {
@@ -43,14 +50,14 @@ func main() {
 
 	jwtCfg := auth.JWTConfig{
 		PublicKey: pubKey,
-		Issuer:    "favourites-api",
-		Audience:  "web",
+		Issuer:    cfg.Auth.Issuer,
+		Audience:  cfg.Auth.Audience,
 	}
 
 	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler)
 
 	server := &http.Server{
-		Addr:              ":8080",
+		Addr:              cfg.HTTPAddr,
 		Handler:           router,
 		ReadHeaderTimeout: 5 * time.Second,
 	}

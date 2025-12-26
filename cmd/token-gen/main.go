@@ -6,16 +6,22 @@ import (
 	"os"
 	"time"
 
+	"github.com/manos/favourites/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		panic(fmt.Sprintf("load config: %v", err))
+	}
+
 	var (
 		user     = flag.String("user", "user-1", "User id to set as JWT subject (sub)")
-		issuer   = flag.String("iss", "favourites-api", "JWT issuer (iss)")
-		audience = flag.String("aud", "web", "JWT audience (aud)")
+		issuer   = flag.String("iss", cfg.Auth.Issuer, "JWT issuer (iss)")
+		audience = flag.String("aud", cfg.Auth.Audience, "JWT audience (aud)")
 		minutes  = flag.Int("minutes", 15, "Token validity in minutes")
-		keyPath  = flag.String("key", "private.pem", "Path to RSA private key PEM (for signing)")
+		keyPath  = flag.String("key", cfg.Auth.PrivateKeyPath, "Path to RSA private key PEM (for signing)")
 	)
 	flag.Parse()
 

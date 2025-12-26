@@ -12,23 +12,55 @@ import (
 )
 
 type FavouritesHandler struct {
-	svc *application.FavouriteService
+	svc          *application.FavouriteService
+	defaultPage  int
+	defaultLimit int
+	maxLimit     int
 }
 
-func NewFavouritesHandler(svc *application.FavouriteService) *FavouritesHandler {
-	return &FavouritesHandler{svc: svc}
+func NewFavouritesHandler(svc *application.FavouriteService, defaultPage int, defaultLimit int, maxLimit int) *FavouritesHandler {
+	if defaultPage <= 0 {
+		defaultPage = 1
+	}
+	if defaultLimit <= 0 {
+		defaultLimit = 20
+	}
+	if maxLimit <= 0 {
+		maxLimit = 100
+	}
+	if defaultLimit > maxLimit {
+		defaultLimit = maxLimit
+	}
+	return &FavouritesHandler{
+		svc:          svc,
+		defaultPage:  defaultPage,
+		defaultLimit: defaultLimit,
+		maxLimit:     maxLimit,
+	}
 }
 
 func (h *FavouritesHandler) GetFavourites(w http.ResponseWriter, r *http.Request, params GetFavouritesParams) {
 	userId, _ := auth.SubjectFromContext(r.Context())
-	page := 1
-	limit := 20
+	page := h.defaultPage
+	limit := h.defaultLimit
 
 	if params.Page != nil {
 		page = *params.Page
+		if page < 1 {
+			http.Error(w, "page must be >= 1", http.StatusBadRequest)
+			return
+		}
 	}
 	if params.Limit != nil {
 		limit = *params.Limit
+		if limit < 1 {
+			http.Error(w, "limit must be >= 1", http.StatusBadRequest)
+			return
+		}
+	}
+
+	if limit > h.maxLimit {
+		limit = h.maxLimit
 	}
 
 	favs, err := h.svc.GetFavouritesForUser(r.Context(), userId, page, limit)
