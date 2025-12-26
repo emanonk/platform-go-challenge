@@ -43,7 +43,7 @@ func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, 
 
 	if err != nil {
 		log.Printf("assets: user=%s type=%s id=%s err=%v", userId, pType, assetID, err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 

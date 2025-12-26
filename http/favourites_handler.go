@@ -60,7 +60,8 @@ func (h *FavouritesHandler) GetFavourites(w http.ResponseWriter, r *http.Request
 	}
 
 	if limit > h.maxLimit {
-		limit = h.maxLimit
+		http.Error(w, "limit exceeds maximum", http.StatusBadRequest)
+		return
 	}
 
 	favs, err := h.svc.GetFavouritesForUser(r.Context(), userId, page, limit)
@@ -78,7 +79,9 @@ func (h *FavouritesHandler) PostFavourites(w http.ResponseWriter, r *http.Reques
 	userId, _ := auth.SubjectFromContext(r.Context())
 
 	var req AddFavouriteRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&req); err != nil {
 		log.Printf("favourites add: user=%s decode error: %v", userId, err)
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
@@ -93,7 +96,14 @@ func (h *FavouritesHandler) PostFavourites(w http.ResponseWriter, r *http.Reques
 	fav, err := h.svc.AddFavourite(r.Context(), userId, string(req.Type), req.AssetId, desc)
 	if err != nil {
 		log.Printf("favourites add: user=%s type=%s asset=%s err=%v", userId, req.Type, req.AssetId, err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		switch {
+		case errors.Is(err, application.ErrAssetNotFound):
+			http.Error(w, "asset not found", http.StatusNotFound)
+		case errors.Is(err, application.ErrFavouriteForbidden):
+			http.Error(w, "forbidden", http.StatusForbidden)
+		default:
+			http.Error(w, "invalid request", http.StatusBadRequest)
+		}
 		return
 	}
 	log.Printf("favourites add: user=%s favourite_id=%s created", userId, fav)
@@ -126,7 +136,9 @@ func (h *FavouritesHandler) PatchFavouritesId(w http.ResponseWriter, r *http.Req
 	userId, _ := auth.SubjectFromContext(r.Context())
 
 	var req UpdateFavouriteRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&req); err != nil {
 		log.Printf("favourites update: user=%s favourite_id=%s decode error: %v", userId, favouriteID, err)
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return

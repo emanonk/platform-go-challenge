@@ -2,6 +2,7 @@ package assets_client
 
 import (
 	"context"
+	"errors"
 
 	assetsapp "github.com/manos/favourites/assets/application"
 	"github.com/manos/favourites/favourites/application"
@@ -18,6 +19,9 @@ func NewAssetClient(assetService assetsapp.AssetsService) *Client {
 func (c *Client) GetInsight(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
 	a, err := c.assetService.GetInsight(ctx, userId, assetId)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return application.AssetDTO{}, application.ErrAssetNotFound
+		}
 		return application.AssetDTO{}, err
 	}
 	return application.AssetDTO{
@@ -33,6 +37,9 @@ func (c *Client) GetInsight(ctx context.Context, userId string, assetId string) 
 func (c *Client) GetAudience(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
 	a, err := c.assetService.GetAudience(ctx, userId, assetId)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return application.AssetDTO{}, application.ErrAssetNotFound
+		}
 		return application.AssetDTO{}, err
 	}
 	return application.AssetDTO{
@@ -51,6 +58,9 @@ func (c *Client) GetAudience(ctx context.Context, userId string, assetId string)
 func (c *Client) GetChart(ctx context.Context, userId string, assetId string) (application.AssetDTO, error) {
 	a, err := c.assetService.GetChart(ctx, userId, assetId)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return application.AssetDTO{}, application.ErrAssetNotFound
+		}
 		return application.AssetDTO{}, err
 	}
 	return application.AssetDTO{
@@ -68,6 +78,9 @@ func (c *Client) GetChart(ctx context.Context, userId string, assetId string) (a
 func (c *Client) GetInsights(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
 	assets, err := c.assetService.GetInsights(ctx, userId, assetIds)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return nil, application.ErrAssetNotFound
+		}
 		return nil, err
 	}
 	out := make(map[string]application.AssetDTO, len(assets))
@@ -87,6 +100,9 @@ func (c *Client) GetInsights(ctx context.Context, userId string, assetIds []stri
 func (c *Client) GetAudiences(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
 	assets, err := c.assetService.GetAudiences(ctx, userId, assetIds)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return nil, application.ErrAssetNotFound
+		}
 		return nil, err
 	}
 	out := make(map[string]application.AssetDTO, len(assets))
@@ -109,6 +125,9 @@ func (c *Client) GetAudiences(ctx context.Context, userId string, assetIds []str
 func (c *Client) GetCharts(ctx context.Context, userId string, assetIds []string) (map[string]application.AssetDTO, error) {
 	assets, err := c.assetService.GetCharts(ctx, userId, assetIds)
 	if err != nil {
+		if errors.Is(err, assetsapp.ErrAssetNotFound) {
+			return nil, application.ErrAssetNotFound
+		}
 		return nil, err
 	}
 	out := make(map[string]application.AssetDTO, len(assets))

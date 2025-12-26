@@ -74,7 +74,7 @@ func TestFavouritesHandler_UpdateDescription(t *testing.T) {
 	}
 }
 
-func TestFavouritesHandler_ClampsLimit(t *testing.T) {
+func TestFavouritesHandler_RejectsLimitOverMax(t *testing.T) {
 	repo := &favouriteTestRepo{
 		data: map[string]domain.FavouriteEntity{
 			"fav-1": {ID: "fav-1", UserID: "user-1", AssetID: "ins-1", Type: domain.FavouriteInsight},
@@ -96,16 +96,8 @@ func TestFavouritesHandler_ClampsLimit(t *testing.T) {
 
 	h.GetFavourites(rec, req.WithContext(ctx), params)
 
-	if rec.Code != http.StatusOK {
-		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
-	}
-
-	var resp FavouritePage
-	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
-		t.Fatalf("decode response: %v", err)
-	}
-	if resp.Limit == nil || *resp.Limit != 2 {
-		t.Fatalf("expected limit to be clamped to 2, got %+v", resp.Limit)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)
 	}
 }
 

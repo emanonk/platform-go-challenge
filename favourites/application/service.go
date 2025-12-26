@@ -12,6 +12,7 @@ import (
 var (
 	ErrFavouriteNotFound  = errors.New("favourite not found")
 	ErrFavouriteForbidden = errors.New("favourite does not belong to user")
+	ErrAssetNotFound      = errors.New("asset not found")
 )
 
 type FavouriteService struct {
