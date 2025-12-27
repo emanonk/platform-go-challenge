@@ -23,19 +23,24 @@ This regenerates `http/openapi.gen.go`. Re-run after modifying `swagger.yaml`.
 
 ### Run locally
 ```bash
-go run ./cmd/favourites-api
+go run ./cmd/favourites-api          # uses configs/local.yaml (docs enabled)
+# or
+go run ./cmd/favourites-api --env local            # explicit env selection
 # or
 go test ./...   # runs unit + e2e tests (uses local private.pem/public.pem)
 ```
-Env:
-- `PUBLIC_KEY_PATH` (default `public.pem`) — path to RSA public key for JWT verification.
+Config:
+- `configs/<env>.yaml` merged with env vars (defaults -> file -> env). Default `APP_ENV=local`.
+- Flags: `--env` overrides `APP_ENV`.
+- Docs: set `enableDocs: true` (e.g., local) and open `http://localhost:8080/docs`.
+- Key paths/issuer/audience can be overridden via env (`PUBLIC_KEY_PATH`, `PRIVATE_KEY_PATH`, `JWT_ISSUER`, `JWT_AUDIENCE`).
 
 ### Docker
 ```bash
 docker build -t favourites-api .
-docker run -p 8080:8080 -e PUBLIC_KEY_PATH=/app/public.pem favourites-api
+docker run -p 8080:8080 -e APP_ENV=prod favourites-api
 ```
-`Dockerfile` includes only `public.pem`. Mount your own public key if you replace it. Never bake `private.pem` into the image.
+`Dockerfile` includes `public.pem` and the prod config only. Mount your own public key if you replace it. Never bake `private.pem` into the image.
 
 ### JWT keys and token generation
 1. Generate RSA keypair (for local/dev):
@@ -45,7 +50,7 @@ docker run -p 8080:8080 -e PUBLIC_KEY_PATH=/app/public.pem favourites-api
    ```
 2. Use `cmd/token-gen` to generate a token:
    ```bash
-   go run ./cmd/token-gen -key private.pem -iss favourites-api -aud web -user user-1
+   APP_ENV=local go run ./cmd/token-gen --env local -user user-1   # flags override config
    ```
 3. Use the token as `Authorization: Bearer <token>`.
 
@@ -58,7 +63,7 @@ Base URL: `http://localhost:8080`
 - `DELETE /favourites/{id}` — delete favourite
 - `GET /assets/{type}/{id}` — fetch owned asset (`type`: insights|audiences|charts)
 
-All endpoints except `/health` require a valid JWT signed with `private.pem` and matching issuer/audience from `cmd/main.go`.
+All endpoints except `/health` require a valid JWT signed with `private.pem` and matching issuer/audience from config.
 
 ### Tests
 `go test ./...` runs unit tests plus E2E against in-memory adapters and real JWT signing/verification with local keys.

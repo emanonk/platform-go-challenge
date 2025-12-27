@@ -82,7 +82,7 @@ func TestAssetsEndpointHappyPath(t *testing.T) {
 func newTestServer(t *testing.T) (*httptest.Server, string) {
 	t.Helper()
 
-	cfg, err := config.Load()
+	cfg, err := config.LoadWithEnv("test")
 	if err != nil {
 		t.Fatalf("load config: %v", err)
 	}
@@ -113,7 +113,7 @@ func newTestServer(t *testing.T) (*httptest.Server, string) {
 		Audience:  cfg.Auth.Audience,
 	}
 
-	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler)
+	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler, false)
 	ts := httptest.NewServer(router)
 
 	token := mintToken(t, "user-1", cfg)

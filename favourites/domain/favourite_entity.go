@@ -21,6 +21,7 @@ type FavouriteEntity struct {
 	AssetID     string
 	Description string
 	Type        FavouriteType
+	CreatedAt   time.Time
 }
 
 func NewFavourite(userID string, favType FavouriteType, assetID string, description string) (FavouriteEntity, error) {
@@ -31,6 +32,7 @@ func NewFavourite(userID string, favType FavouriteType, assetID string, descript
 		AssetID:     assetID,
 		Description: description,
 		Type:        favType,
+		CreatedAt:   time.Now(),
 	}, nil
 }
 

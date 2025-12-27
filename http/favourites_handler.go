@@ -101,6 +101,8 @@ func (h *FavouritesHandler) PostFavourites(w http.ResponseWriter, r *http.Reques
 			http.Error(w, "asset not found", http.StatusNotFound)
 		case errors.Is(err, application.ErrFavouriteForbidden):
 			http.Error(w, "forbidden", http.StatusForbidden)
+		case errors.Is(err, application.ErrFavouriteAlreadyExists):
+			http.Error(w, "favourite already exists", http.StatusConflict)
 		default:
 			http.Error(w, "invalid request", http.StatusBadRequest)
 		}

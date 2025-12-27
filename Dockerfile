@@ -19,8 +19,10 @@ WORKDIR /app
 # Copy binary and public key (verification only)
 COPY --from=builder /app/favourites-api /app/favourites-api
 COPY public.pem /app/public.pem
+COPY configs/prod.yaml /app/configs/prod.yaml
 
 ENV PUBLIC_KEY_PATH=/app/public.pem
+ENV APP_ENV=prod
 EXPOSE 8080
 
 USER nonroot:nonroot

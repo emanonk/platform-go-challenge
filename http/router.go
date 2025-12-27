@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/manos/favourites/http/auth"
@@ -42,7 +43,7 @@ func (s *Server) GetHealth(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte("ok"))
 }
 
-func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandler *AssetsHandler) http.Handler {
+func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandler *AssetsHandler, enableDocs bool) http.Handler {
 	r := chi.NewRouter()
 
 	// Unprotected health
@@ -51,15 +52,35 @@ func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandl
 		w.Write([]byte("ok"))
 	})
 
-	protected := chi.NewRouter()
-	protected.Use(func(next http.Handler) http.Handler {
-		return auth.Middleware(jwtCfg)(next)
-	})
+	if enableDocs {
+		r.Get("/docs", serveDocs)
+		r.Get("/openapi/swagger.yaml", serveSwaggerYAML)
+		r.Get("/openapi/swagger.json", serveSwaggerJSON)
+	}
 
 	server := NewServer(favHandler, assetsHandler)
-	protected.Mount("/", HandlerFromMux(server, protected))
 
-	r.Mount("/", protected)
+	// Protected API routes (JWT required)
+	r.Group(func(api chi.Router) {
+		api.Use(skipAuthForPaths(jwtCfg, "/health"))
+		HandlerFromMux(server, api)
+	})
 
 	return r
+}
+
+// skipAuthForPaths wraps the JWT middleware but bypasses it for the provided exact paths.
+func skipAuthForPaths(jwtCfg auth.JWTConfig, skipPaths ...string) func(http.Handler) http.Handler {
+	jwtMW := auth.Middleware(jwtCfg)
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			for _, p := range skipPaths {
+				if r.URL.Path == p || strings.HasPrefix(r.URL.Path, p+"/") {
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
+			jwtMW(next).ServeHTTP(w, r)
+		})
+	}
 }

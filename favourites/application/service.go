@@ -13,6 +13,7 @@ var (
 	ErrFavouriteNotFound  = errors.New("favourite not found")
 	ErrFavouriteForbidden = errors.New("favourite does not belong to user")
 	ErrAssetNotFound      = errors.New("asset not found")
+	ErrFavouriteAlreadyExists = errors.New("favourite already exists")
 )
 
 type FavouriteService struct {
@@ -96,7 +97,8 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		}
 
 		if !ok {
-			return FavouritePageDTO{}, fmt.Errorf("asset %s for favourite %s not found", fav.AssetID, fav.ID)
+			log.Printf("svc favourites: list user=%s favourite_id=%s asset=%s missing; skipping", userId, fav.ID, fav.AssetID)
+			continue
 		}
 
 		out = append(out, FavouriteDTO{
@@ -108,6 +110,8 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		})
 	}
 
+	// Recompute totals based on available assets only.
+	total = len(out)
 	totalPages := 0
 	if limit > 0 {
 		totalPages = (total + limit - 1) / limit

@@ -34,6 +34,11 @@ func TestSaveFindDeleteUpdate(t *testing.T) {
 		t.Fatalf("save error: %v", err)
 	}
 
+	// duplicate save should fail
+	if err := repo.Save(ctx, domain.FavouriteEntity{ID: "other-id", UserID: "user-3", AssetID: "ins-9", Type: domain.FavouriteInsight}); err == nil {
+		t.Fatalf("expected duplicate save error")
+	}
+
 	got, err := repo.FindByID(ctx, "fav-new")
 	if err != nil {
 		t.Fatalf("find error: %v", err)

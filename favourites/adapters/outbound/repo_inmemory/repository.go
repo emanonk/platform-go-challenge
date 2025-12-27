@@ -5,6 +5,7 @@ import (
 	"log"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/manos/favourites/favourites/application"
 	"github.com/manos/favourites/favourites/domain"
@@ -16,12 +17,13 @@ type FavouriteRepository struct {
 }
 
 func NewInMemoryFavouriteRepository() *FavouriteRepository {
+	now := time.Now()
 	return &FavouriteRepository{
 		data: map[string]domain.FavouriteEntity{
-			"fav-1": {ID: "fav-1", UserID: "user-1", AssetID: "ins-001", Type: domain.FavouriteInsight},
-			"fav-2": {ID: "fav-2", UserID: "user-1", AssetID: "aud-001", Type: domain.FavouriteAudience},
-			"fav-3": {ID: "fav-3", UserID: "user-1", AssetID: "chr-001", Type: domain.FavouriteChart},
-			"fav-4": {ID: "fav-4", UserID: "user-2", AssetID: "ins-002", Type: domain.FavouriteInsight},
+			"fav-1": {ID: "fav-1", UserID: "user-1", AssetID: "ins-001", Type: domain.FavouriteInsight, CreatedAt: now},
+			"fav-2": {ID: "fav-2", UserID: "user-1", AssetID: "aud-001", Type: domain.FavouriteAudience, CreatedAt: now.Add(-1 * time.Minute)},
+			"fav-3": {ID: "fav-3", UserID: "user-1", AssetID: "chr-001", Type: domain.FavouriteChart, CreatedAt: now.Add(-2 * time.Minute)},
+			"fav-4": {ID: "fav-4", UserID: "user-2", AssetID: "ins-002", Type: domain.FavouriteInsight, CreatedAt: now.Add(-3 * time.Minute)},
 		},
 	}
 }
@@ -50,7 +52,11 @@ func (r *FavouriteRepository) FindByUserPage(_ context.Context, userID string, o
 	r.mu.RUnlock()
 
 	sort.Slice(userFavs, func(i, j int) bool {
-		return userFavs[i].ID < userFavs[j].ID
+		// Most recent first, fallback to ID for stability.
+		if userFavs[i].CreatedAt.Equal(userFavs[j].CreatedAt) {
+			return userFavs[i].ID < userFavs[j].ID
+		}
+		return userFavs[i].CreatedAt.After(userFavs[j].CreatedAt)
 	})
 
 	total := len(userFavs)
@@ -70,6 +76,15 @@ func (r *FavouriteRepository) FindByUserPage(_ context.Context, userID string, o
 func (r *FavouriteRepository) Save(_ context.Context, fav domain.FavouriteEntity) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	for _, existing := range r.data {
+		if existing.UserID == fav.UserID && existing.AssetID == fav.AssetID && existing.Type == fav.Type {
+			log.Printf("repo favourites: duplicate favourite user=%s asset=%s type=%s", fav.UserID, fav.AssetID, fav.Type)
+			return application.ErrFavouriteAlreadyExists
+		}
+	}
+	if fav.CreatedAt.IsZero() {
+		fav.CreatedAt = time.Now()
+	}
 	r.data[fav.ID] = fav
 	log.Printf("repo favourites: saved favourite_id=%s user=%s type=%s", fav.ID, fav.UserID, fav.Type)
 	return nil

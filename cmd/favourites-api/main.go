@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +22,10 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
+	env := flag.String("env", "", "Config environment (local/dev/test/prod). Overrides APP_ENV.")
+	flag.Parse()
+
+	cfg, err := config.LoadWithEnv(*env)
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
@@ -58,7 +62,7 @@ func main() {
 		Audience:  cfg.Auth.Audience,
 	}
 
-	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler)
+	router := httpapi.NewRouter(jwtCfg, favHandler, assetsHandler, cfg.EnableDocs)
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,

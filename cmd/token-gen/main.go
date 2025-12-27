@@ -6,24 +6,36 @@ import (
 	"os"
 	"time"
 
-	"github.com/manos/favourites/config"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/manos/favourites/config"
 )
 
 func main() {
-	cfg, err := config.Load()
+	var (
+		env      = flag.String("env", "", "Config environment (local/dev/test/prod). Overrides APP_ENV.")
+		user     = flag.String("user", "user-1", "User id to set as JWT subject (sub)")
+		issuer   = flag.String("iss", "", "JWT issuer (iss)")
+		audience = flag.String("aud", "", "JWT audience (aud)")
+		minutes  = flag.Int("minutes", 15, "Token validity in minutes")
+		keyPath  = flag.String("key", "", "Path to RSA private key PEM (for signing)")
+	)
+
+	flag.Parse()
+
+	cfg, err := config.LoadWithEnv(*env)
 	if err != nil {
 		panic(fmt.Sprintf("load config: %v", err))
 	}
 
-	var (
-		user     = flag.String("user", "user-1", "User id to set as JWT subject (sub)")
-		issuer   = flag.String("iss", cfg.Auth.Issuer, "JWT issuer (iss)")
-		audience = flag.String("aud", cfg.Auth.Audience, "JWT audience (aud)")
-		minutes  = flag.Int("minutes", 15, "Token validity in minutes")
-		keyPath  = flag.String("key", cfg.Auth.PrivateKeyPath, "Path to RSA private key PEM (for signing)")
-	)
-	flag.Parse()
+	if *issuer == "" {
+		*issuer = cfg.Auth.Issuer
+	}
+	if *audience == "" {
+		*audience = cfg.Auth.Audience
+	}
+	if *keyPath == "" {
+		*keyPath = cfg.Auth.PrivateKeyPath
+	}
 
 	fmt.Println("Generating JWT token...", *user, *issuer, *audience, *minutes, *keyPath)
 
