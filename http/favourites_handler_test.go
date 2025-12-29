@@ -20,7 +20,7 @@ func TestFavouritesHandler_ListWithPagination(t *testing.T) {
 		},
 	}
 	assets := &assetClientTestStub{
-		assets: map[string]application.AssetDTO{"ins-1": {ID: "ins-1", Name: "n", Type: "INSIGHT"}},
+		assets: map[string]application.AssetDTO{"ins-1": {ID: "ins-1", Name: "n", Type: domain.FavouriteInsight}},
 	}
 	svc := application.NewFavouriteService(repo, assets)
 	h := NewFavouritesHandler(svc, 1, 20, 100)
@@ -81,7 +81,7 @@ func TestFavouritesHandler_RejectsLimitOverMax(t *testing.T) {
 		},
 	}
 	assets := &assetClientTestStub{
-		assets: map[string]application.AssetDTO{"ins-1": {ID: "ins-1", Name: "n", Type: "INSIGHT"}},
+		assets: map[string]application.AssetDTO{"ins-1": {ID: "ins-1", Name: "n", Type: domain.FavouriteInsight}},
 	}
 	svc := application.NewFavouriteService(repo, assets)
 	h := NewFavouritesHandler(svc, 1, 1, 2)

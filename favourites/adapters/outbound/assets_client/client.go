@@ -6,6 +6,7 @@ import (
 
 	assetsapp "github.com/manos/favourites/assets/application"
 	"github.com/manos/favourites/favourites/application"
+	favdomain "github.com/manos/favourites/favourites/domain"
 )
 
 type Client struct {
@@ -29,7 +30,7 @@ func (c *Client) GetInsight(ctx context.Context, userId string, assetId string) 
 		Name:        a.Name,
 		Description: a.Description,
 		OwnerUserID: a.UserId,
-		Type:        "INSIGHT",
+		Type:        favdomain.FavouriteInsight,
 		Text:        a.Text,
 	}, nil
 }
@@ -47,7 +48,7 @@ func (c *Client) GetAudience(ctx context.Context, userId string, assetId string)
 		Name:              a.Name,
 		Description:       a.Description,
 		OwnerUserID:       a.UserId,
-		Type:              "AUDIENCE",
+		Type:              favdomain.FavouriteAudience,
 		SampleSize:        a.SampleSize,
 		TotalRespondents:  a.TotalRespondents,
 		EstimatedReach:    a.EstimatedReach,
@@ -68,7 +69,7 @@ func (c *Client) GetChart(ctx context.Context, userId string, assetId string) (a
 		Name:        a.Name,
 		Description: a.Description,
 		OwnerUserID: a.UserId,
-		Type:        "CHART",
+		Type:        favdomain.FavouriteChart,
 		XAxisTitle:  a.XAxisTitle,
 		YAxisTitle:  a.YAxisTitle,
 		Data:        a.Data,
@@ -90,7 +91,7 @@ func (c *Client) GetInsights(ctx context.Context, userId string, assetIds []stri
 			Name:        a.Name,
 			Description: a.Description,
 			OwnerUserID: a.UserId,
-			Type:        "INSIGHT",
+			Type:        favdomain.FavouriteInsight,
 			Text:        a.Text,
 		}
 	}
@@ -112,7 +113,7 @@ func (c *Client) GetAudiences(ctx context.Context, userId string, assetIds []str
 			Name:              a.Name,
 			Description:       a.Description,
 			OwnerUserID:       a.UserId,
-			Type:              "AUDIENCE",
+			Type:              favdomain.FavouriteAudience,
 			SampleSize:        a.SampleSize,
 			TotalRespondents:  a.TotalRespondents,
 			EstimatedReach:    a.EstimatedReach,
@@ -137,7 +138,7 @@ func (c *Client) GetCharts(ctx context.Context, userId string, assetIds []string
 			Name:        a.Name,
 			Description: a.Description,
 			OwnerUserID: a.UserId,
-			Type:        "CHART",
+			Type:        favdomain.FavouriteChart,
 			XAxisTitle:  a.XAxisTitle,
 			YAxisTitle:  a.YAxisTitle,
 			Data:        a.Data,

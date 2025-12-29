@@ -7,6 +7,7 @@ import (
 	application "github.com/manos/favourites/assets/application"
 	"github.com/manos/favourites/assets/domain"
 	favapp "github.com/manos/favourites/favourites/application"
+	favdomain "github.com/manos/favourites/favourites/domain"
 	"github.com/manos/favourites/http/auth"
 )
 
@@ -54,7 +55,7 @@ func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, 
 			Name:        v.Name,
 			Description: v.Description,
 			OwnerUserID: v.UserId,
-			Type:        "INSIGHT",
+			Type:        favdomain.FavouriteInsight,
 			Text:        v.Text,
 		}
 		writeJSON(w, http.StatusOK, assetToAPI(dto))
@@ -64,7 +65,7 @@ func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, 
 			Name:              v.Name,
 			Description:       v.Description,
 			OwnerUserID:       v.UserId,
-			Type:              "AUDIENCE",
+			Type:              favdomain.FavouriteAudience,
 			SampleSize:        v.SampleSize,
 			TotalRespondents:  v.TotalRespondents,
 			EstimatedReach:    v.EstimatedReach,
@@ -77,7 +78,7 @@ func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, 
 			Name:        v.Name,
 			Description: v.Description,
 			OwnerUserID: v.UserId,
-			Type:        "CHART",
+			Type:        favdomain.FavouriteChart,
 			XAxisTitle:  v.XAxisTitle,
 			YAxisTitle:  v.YAxisTitle,
 			Data:        v.Data,

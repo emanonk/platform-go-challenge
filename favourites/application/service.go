@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrFavouriteNotFound  = errors.New("favourite not found")
-	ErrFavouriteForbidden = errors.New("favourite does not belong to user")
-	ErrAssetNotFound      = errors.New("asset not found")
+	ErrFavouriteNotFound      = errors.New("favourite not found")
+	ErrFavouriteForbidden     = errors.New("favourite does not belong to user")
+	ErrAssetNotFound          = errors.New("asset not found")
 	ErrFavouriteAlreadyExists = errors.New("favourite already exists")
 )
 
@@ -104,7 +104,7 @@ func (s *FavouriteService) GetFavouritesForUser(ctx context.Context, userId stri
 		out = append(out, FavouriteDTO{
 			ID:          fav.ID,
 			UserID:      fav.UserID,
-			Type:        string(fav.Type),
+			Type:        fav.Type,
 			Description: fav.Description,
 			Asset:       asset,
 		})

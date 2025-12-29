@@ -26,10 +26,12 @@ func (r *favRepoStub) FindByUserPage(_ context.Context, _ string, offset int, li
 	return r.items[offset:end], len(r.items), nil
 }
 
-func (r *favRepoStub) Save(_ context.Context, _ domain.FavouriteEntity) error                  { return nil }
-func (r *favRepoStub) FindByID(_ context.Context, _ string) (domain.FavouriteEntity, error)    { return domain.FavouriteEntity{}, nil }
-func (r *favRepoStub) Delete(_ context.Context, _ string) error                                { return nil }
-func (r *favRepoStub) UpdateDescription(_ context.Context, _ string, _ string) error           { return nil }
+func (r *favRepoStub) Save(_ context.Context, _ domain.FavouriteEntity) error { return nil }
+func (r *favRepoStub) FindByID(_ context.Context, _ string) (domain.FavouriteEntity, error) {
+	return domain.FavouriteEntity{}, nil
+}
+func (r *favRepoStub) Delete(_ context.Context, _ string) error                      { return nil }
+func (r *favRepoStub) UpdateDescription(_ context.Context, _ string, _ string) error { return nil }
 
 type assetClientStub struct {
 	insights  map[string]AssetDTO
@@ -37,9 +39,15 @@ type assetClientStub struct {
 	charts    map[string]AssetDTO
 }
 
-func (c *assetClientStub) GetInsight(_ context.Context, _ string, _ string) (AssetDTO, error)   { return AssetDTO{}, nil }
-func (c *assetClientStub) GetAudience(_ context.Context, _ string, _ string) (AssetDTO, error)  { return AssetDTO{}, nil }
-func (c *assetClientStub) GetChart(_ context.Context, _ string, _ string) (AssetDTO, error)     { return AssetDTO{}, nil }
+func (c *assetClientStub) GetInsight(_ context.Context, _ string, _ string) (AssetDTO, error) {
+	return AssetDTO{}, nil
+}
+func (c *assetClientStub) GetAudience(_ context.Context, _ string, _ string) (AssetDTO, error) {
+	return AssetDTO{}, nil
+}
+func (c *assetClientStub) GetChart(_ context.Context, _ string, _ string) (AssetDTO, error) {
+	return AssetDTO{}, nil
+}
 func (c *assetClientStub) GetInsights(_ context.Context, _ string, _ []string) (map[string]AssetDTO, error) {
 	return c.insights, nil
 }
@@ -62,9 +70,9 @@ func setupTestService() *FavouriteService {
 		},
 	}
 	assets := &assetClientStub{
-		insights: map[string]AssetDTO{"ins-1": {ID: "ins-1", Name: "insight", Type: "INSIGHT"}},
-		audiences: map[string]AssetDTO{"aud-1": {ID: "aud-1", Name: "audience", Type: "AUDIENCE"}},
-		charts: map[string]AssetDTO{"chr-1": {ID: "chr-1", Name: "chart", Type: "CHART"}},
+		insights:  map[string]AssetDTO{"ins-1": {ID: "ins-1", Name: "insight", Type: domain.FavouriteInsight}},
+		audiences: map[string]AssetDTO{"aud-1": {ID: "aud-1", Name: "audience", Type: domain.FavouriteAudience}},
+		charts:    map[string]AssetDTO{"chr-1": {ID: "chr-1", Name: "chart", Type: domain.FavouriteChart}},
 	}
 	return NewFavouriteService(repo, assets)
 }

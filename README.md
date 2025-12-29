@@ -50,7 +50,7 @@ docker run -p 8080:8080 -e APP_ENV=prod favourites-api
    ```
 2. Use `cmd/token-gen` to generate a token:
    ```bash
-   APP_ENV=local go run ./cmd/token-gen --env local -user user-1   # flags override config
+   go run ./cmd/token-gen --env local -user user-1   # flags override config
    ```
 3. Use the token as `Authorization: Bearer <token>`.
 
@@ -63,7 +63,7 @@ Base URL: `http://localhost:8080`
 - `DELETE /favourites/{id}` — delete favourite
 - `GET /assets/{type}/{id}` — fetch owned asset (`type`: insights|audiences|charts)
 
-All endpoints except `/health` require a valid JWT signed with `private.pem` and matching issuer/audience from config.
+All endpoints except `/health` & `/docs` and require a valid JWT signed with `private.pem` and matching issuer/audience from config.
 
 ### Tests
 `go test ./...` runs unit tests plus E2E against in-memory adapters and real JWT signing/verification with local keys.

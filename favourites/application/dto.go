@@ -1,11 +1,13 @@
 package application
 
+import "github.com/manos/favourites/favourites/domain"
+
 type AssetDTO struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	OwnerUserID string `json:"ownerUserId"`
-	Type        string `json:"type"`
+	ID          string               `json:"id"`
+	Name        string               `json:"name"`
+	Description string               `json:"description"`
+	OwnerUserID string               `json:"ownerUserId"`
+	Type        domain.FavouriteType `json:"type"`
 
 	// Insight
 	Text string `json:"text,omitempty"`
@@ -23,11 +25,11 @@ type AssetDTO struct {
 }
 
 type FavouriteDTO struct {
-	ID          string   `json:"id"`
-	UserID      string   `json:"userId"`
-	Type        string   `json:"type"`
-	Description string   `json:"description"`
-	Asset       AssetDTO `json:"asset"`
+	ID          string               `json:"id"`
+	UserID      string               `json:"userId"`
+	Type        domain.FavouriteType `json:"type"`
+	Description string               `json:"description"`
+	Asset       AssetDTO             `json:"asset"`
 }
 
 type AddFavouriteRequest struct {
