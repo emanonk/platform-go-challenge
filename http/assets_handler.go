@@ -19,7 +19,7 @@ func NewAssetsHandler(svc *application.AssetService) *AssetsHandler {
 	return &AssetsHandler{svc: svc}
 }
 
-func (h *AssetsHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetAssetsTypeIdParamsType, assetID string) {
+func (h *AssetsHandler) GetV1AssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetV1AssetsTypeIdParamsType, assetID string) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 
 	log.Printf("assets: %s %s user=%s type=%s id=%s", r.Method, r.URL.Path, userId, pType, assetID)

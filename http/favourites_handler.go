@@ -39,7 +39,7 @@ func NewFavouritesHandler(svc *application.FavouriteService, defaultPage int, de
 	}
 }
 
-func (h *FavouritesHandler) GetFavourites(w http.ResponseWriter, r *http.Request, params GetFavouritesParams) {
+func (h *FavouritesHandler) GetV1Favourites(w http.ResponseWriter, r *http.Request, params GetV1FavouritesParams) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 	page := h.defaultPage
 	limit := h.defaultLimit
@@ -75,7 +75,7 @@ func (h *FavouritesHandler) GetFavourites(w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, favouritePageToAPI(favs))
 }
 
-func (h *FavouritesHandler) PostFavourites(w http.ResponseWriter, r *http.Request) {
+func (h *FavouritesHandler) PostV1Favourites(w http.ResponseWriter, r *http.Request) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 
 	var req AddFavouriteRequest
@@ -112,7 +112,7 @@ func (h *FavouritesHandler) PostFavourites(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusCreated, fav)
 }
 
-func (h *FavouritesHandler) DeleteFavouritesId(w http.ResponseWriter, r *http.Request, favouriteID string) {
+func (h *FavouritesHandler) DeleteV1FavouritesId(w http.ResponseWriter, r *http.Request, favouriteID string) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 	err := h.svc.DeleteFavourite(r.Context(), userId, favouriteID)
 	if err != nil {
@@ -134,7 +134,7 @@ func (h *FavouritesHandler) DeleteFavouritesId(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *FavouritesHandler) PatchFavouritesId(w http.ResponseWriter, r *http.Request, favouriteID string) {
+func (h *FavouritesHandler) PatchV1FavouritesId(w http.ResponseWriter, r *http.Request, favouriteID string) {
 	userId, _ := auth.SubjectFromContext(r.Context())
 
 	var req UpdateFavouriteRequest

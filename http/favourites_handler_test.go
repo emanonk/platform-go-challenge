@@ -25,16 +25,16 @@ func TestFavouritesHandler_ListWithPagination(t *testing.T) {
 	svc := application.NewFavouriteService(repo, assets)
 	h := NewFavouritesHandler(svc, 1, 20, 100)
 
-	req := httptest.NewRequest(http.MethodGet, "/favourites?page=2&limit=1", nil)
+	req := httptest.NewRequest(http.MethodGet, "/v1/favourites?page=2&limit=1", nil)
 	ctx := context.WithValue(req.Context(), auth.ContextKeySubject, "user-1")
 	rec := httptest.NewRecorder()
 
-	params := GetFavouritesParams{
+	params := GetV1FavouritesParams{
 		Page:  intPtr(2),
 		Limit: intPtr(1),
 	}
 
-	h.GetFavourites(rec, req.WithContext(ctx), params)
+	h.GetV1Favourites(rec, req.WithContext(ctx), params)
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
@@ -60,11 +60,11 @@ func TestFavouritesHandler_UpdateDescription(t *testing.T) {
 	h := NewFavouritesHandler(svc, 1, 20, 100)
 
 	body := bytes.NewBufferString(`{"description":"new desc"}`)
-	req := httptest.NewRequest(http.MethodPatch, "/favourites/fav-1", body)
+	req := httptest.NewRequest(http.MethodPatch, "/v1/favourites/fav-1", body)
 	ctx := context.WithValue(req.Context(), auth.ContextKeySubject, "user-1")
 	rec := httptest.NewRecorder()
 
-	h.PatchFavouritesId(rec, req.WithContext(ctx), "fav-1")
+	h.PatchV1FavouritesId(rec, req.WithContext(ctx), "fav-1")
 
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusNoContent)
@@ -86,15 +86,15 @@ func TestFavouritesHandler_RejectsLimitOverMax(t *testing.T) {
 	svc := application.NewFavouriteService(repo, assets)
 	h := NewFavouritesHandler(svc, 1, 1, 2)
 
-	req := httptest.NewRequest(http.MethodGet, "/favourites?limit=10", nil)
+	req := httptest.NewRequest(http.MethodGet, "/v1/favourites?limit=10", nil)
 	ctx := context.WithValue(req.Context(), auth.ContextKeySubject, "user-1")
 	rec := httptest.NewRecorder()
 
-	params := GetFavouritesParams{
+	params := GetV1FavouritesParams{
 		Limit: intPtr(10),
 	}
 
-	h.GetFavourites(rec, req.WithContext(ctx), params)
+	h.GetV1Favourites(rec, req.WithContext(ctx), params)
 
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)

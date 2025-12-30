@@ -16,10 +16,10 @@ import (
 
 	assetrepo "github.com/manos/favourites/assets/adapters/outbound/repo_inmemory"
 	assetapplication "github.com/manos/favourites/assets/application"
+	"github.com/manos/favourites/config"
 	"github.com/manos/favourites/favourites/adapters/outbound/assets_client"
 	favrepo "github.com/manos/favourites/favourites/adapters/outbound/repo_inmemory"
 	favouritesapplication "github.com/manos/favourites/favourites/application"
-	"github.com/manos/favourites/config"
 	httpapi "github.com/manos/favourites/http"
 	"github.com/manos/favourites/http/auth"
 
@@ -34,7 +34,7 @@ func TestFavouritesEndpointsHappyPath(t *testing.T) {
 
 	// initial list
 	page := favouritesapplication.FavouritePageDTO{}
-	doJSON(t, client, token, http.MethodGet, ts.URL+"/favourites", nil, http.StatusOK, &page)
+	doJSON(t, client, token, http.MethodGet, ts.URL+"/v1/favourites", nil, http.StatusOK, &page)
 	if page.Total != 3 {
 		t.Fatalf("initial favourites total = %d, want 3", page.Total)
 	}
@@ -46,21 +46,21 @@ func TestFavouritesEndpointsHappyPath(t *testing.T) {
 		"description": "new fav",
 	}
 	var favID string
-	doJSON(t, client, token, http.MethodPost, ts.URL+"/favourites", addBody, http.StatusCreated, &favID)
+	doJSON(t, client, token, http.MethodPost, ts.URL+"/v1/favourites", addBody, http.StatusCreated, &favID)
 	if favID == "" {
 		t.Fatalf("expected favourite id, got empty")
 	}
 
 	// update description
 	updateBody := map[string]any{"description": "updated desc"}
-	doJSON(t, client, token, http.MethodPatch, ts.URL+"/favourites/"+favID, updateBody, http.StatusNoContent, nil)
+	doJSON(t, client, token, http.MethodPatch, ts.URL+"/v1/favourites/"+favID, updateBody, http.StatusNoContent, nil)
 
 	// delete favourite
-	doJSON(t, client, token, http.MethodDelete, ts.URL+"/favourites/"+favID, nil, http.StatusNoContent, nil)
+	doJSON(t, client, token, http.MethodDelete, ts.URL+"/v1/favourites/"+favID, nil, http.StatusNoContent, nil)
 
 	// final list should be back to 3
 	page = favouritesapplication.FavouritePageDTO{}
-	doJSON(t, client, token, http.MethodGet, ts.URL+"/favourites", nil, http.StatusOK, &page)
+	doJSON(t, client, token, http.MethodGet, ts.URL+"/v1/favourites", nil, http.StatusOK, &page)
 	if page.Total != 3 {
 		t.Fatalf("final favourites total = %d, want 3", page.Total)
 	}
@@ -73,7 +73,7 @@ func TestAssetsEndpointHappyPath(t *testing.T) {
 	client := ts.Client()
 
 	var asset map[string]any
-	doJSON(t, client, token, http.MethodGet, ts.URL+"/assets/insights/ins-001", nil, http.StatusOK, &asset)
+	doJSON(t, client, token, http.MethodGet, ts.URL+"/v1/assets/insights/ins-001", nil, http.StatusOK, &asset)
 	if asset["id"] != "ins-001" {
 		t.Fatalf("asset id = %v, want ins-001", asset["id"])
 	}

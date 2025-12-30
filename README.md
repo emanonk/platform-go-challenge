@@ -57,11 +57,11 @@ docker run -p 8080:8080 -e APP_ENV=prod favourites-api
 ### API usage
 Base URL: `http://localhost:8080`
 - `GET /health` — health check
-- `GET /favourites?page=&limit=` — list favourites (paginated)
-- `POST /favourites` — add favourite (`type`: INSIGHT|AUDIENCE|CHART, `assetId`, optional `description`)
-- `PATCH /favourites/{id}` — update description
-- `DELETE /favourites/{id}` — delete favourite
-- `GET /assets/{type}/{id}` — fetch owned asset (`type`: insights|audiences|charts)
+- `GET /v1/favourites?page=&limit=` — list favourites (paginated)
+- `POST /v1/favourites` — add favourite (`type`: INSIGHT|AUDIENCE|CHART, `assetId`, optional `description`)
+- `PATCH /v1/favourites/{id}` — update description
+- `DELETE /v1/favourites/{id}` — delete favourite
+- `GET /v1/assets/{type}/{id}` — fetch owned asset (`type`: insights|audiences|charts)
 
 All endpoints except `/health` & `/docs` and require a valid JWT signed with `private.pem` and matching issuer/audience from config.
 

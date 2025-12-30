@@ -46,11 +46,11 @@ const (
 	INSIGHT  FavouriteType = "INSIGHT"
 )
 
-// Defines values for GetAssetsTypeIdParamsType.
+// Defines values for GetV1AssetsTypeIdParamsType.
 const (
-	Audiences GetAssetsTypeIdParamsType = "audiences"
-	Charts    GetAssetsTypeIdParamsType = "charts"
-	Insights  GetAssetsTypeIdParamsType = "insights"
+	Audiences GetV1AssetsTypeIdParamsType = "audiences"
+	Charts    GetV1AssetsTypeIdParamsType = "charts"
+	Insights  GetV1AssetsTypeIdParamsType = "insights"
 )
 
 // AddFavouriteRequest defines model for AddFavouriteRequest.
@@ -109,11 +109,11 @@ type UpdateFavouriteRequest struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// GetAssetsTypeIdParamsType defines parameters for GetAssetsTypeId.
-type GetAssetsTypeIdParamsType string
+// GetV1AssetsTypeIdParamsType defines parameters for GetV1AssetsTypeId.
+type GetV1AssetsTypeIdParamsType string
 
-// GetFavouritesParams defines parameters for GetFavourites.
-type GetFavouritesParams struct {
+// GetV1FavouritesParams defines parameters for GetV1Favourites.
+type GetV1FavouritesParams struct {
 	// Page Page number (default 1)
 	Page *int `form:"page,omitempty" json:"page,omitempty"`
 
@@ -121,71 +121,71 @@ type GetFavouritesParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
-// PostFavouritesJSONRequestBody defines body for PostFavourites for application/json ContentType.
-type PostFavouritesJSONRequestBody = AddFavouriteRequest
+// PostV1FavouritesJSONRequestBody defines body for PostV1Favourites for application/json ContentType.
+type PostV1FavouritesJSONRequestBody = AddFavouriteRequest
 
-// PatchFavouritesIdJSONRequestBody defines body for PatchFavouritesId for application/json ContentType.
-type PatchFavouritesIdJSONRequestBody = UpdateFavouriteRequest
+// PatchV1FavouritesIdJSONRequestBody defines body for PatchV1FavouritesId for application/json ContentType.
+type PatchV1FavouritesIdJSONRequestBody = UpdateFavouriteRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Fetch an asset owned by the authenticated user
-	// (GET /assets/{type}/{id})
-	GetAssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetAssetsTypeIdParamsType, id string)
-	// List favourites for the authenticated user
-	// (GET /favourites)
-	GetFavourites(w http.ResponseWriter, r *http.Request, params GetFavouritesParams)
-	// Add a new favourite for the authenticated user
-	// (POST /favourites)
-	PostFavourites(w http.ResponseWriter, r *http.Request)
-	// Delete a favourite by ID
-	// (DELETE /favourites/{id})
-	DeleteFavouritesId(w http.ResponseWriter, r *http.Request, id string)
-	// Update favourite description
-	// (PATCH /favourites/{id})
-	PatchFavouritesId(w http.ResponseWriter, r *http.Request, id string)
 	// Health check
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
+	// Fetch an asset owned by the authenticated user
+	// (GET /v1/assets/{type}/{id})
+	GetV1AssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetV1AssetsTypeIdParamsType, id string)
+	// List favourites for the authenticated user
+	// (GET /v1/favourites)
+	GetV1Favourites(w http.ResponseWriter, r *http.Request, params GetV1FavouritesParams)
+	// Add a new favourite for the authenticated user
+	// (POST /v1/favourites)
+	PostV1Favourites(w http.ResponseWriter, r *http.Request)
+	// Delete a favourite by ID
+	// (DELETE /v1/favourites/{id})
+	DeleteV1FavouritesId(w http.ResponseWriter, r *http.Request, id string)
+	// Update favourite description
+	// (PATCH /v1/favourites/{id})
+	PatchV1FavouritesId(w http.ResponseWriter, r *http.Request, id string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
 
+// Health check
+// (GET /health)
+func (_ Unimplemented) GetHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Fetch an asset owned by the authenticated user
-// (GET /assets/{type}/{id})
-func (_ Unimplemented) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetAssetsTypeIdParamsType, id string) {
+// (GET /v1/assets/{type}/{id})
+func (_ Unimplemented) GetV1AssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetV1AssetsTypeIdParamsType, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // List favourites for the authenticated user
-// (GET /favourites)
-func (_ Unimplemented) GetFavourites(w http.ResponseWriter, r *http.Request, params GetFavouritesParams) {
+// (GET /v1/favourites)
+func (_ Unimplemented) GetV1Favourites(w http.ResponseWriter, r *http.Request, params GetV1FavouritesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Add a new favourite for the authenticated user
-// (POST /favourites)
-func (_ Unimplemented) PostFavourites(w http.ResponseWriter, r *http.Request) {
+// (POST /v1/favourites)
+func (_ Unimplemented) PostV1Favourites(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Delete a favourite by ID
-// (DELETE /favourites/{id})
-func (_ Unimplemented) DeleteFavouritesId(w http.ResponseWriter, r *http.Request, id string) {
+// (DELETE /v1/favourites/{id})
+func (_ Unimplemented) DeleteV1FavouritesId(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Update favourite description
-// (PATCH /favourites/{id})
-func (_ Unimplemented) PatchFavouritesId(w http.ResponseWriter, r *http.Request, id string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Health check
-// (GET /health)
-func (_ Unimplemented) GetHealth(w http.ResponseWriter, r *http.Request) {
+// (PATCH /v1/favourites/{id})
+func (_ Unimplemented) PatchV1FavouritesId(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -198,14 +198,29 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-// GetAssetsTypeId operation middleware
-func (siw *ServerInterfaceWrapper) GetAssetsTypeId(w http.ResponseWriter, r *http.Request) {
+// GetHealth operation middleware
+func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetHealth(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetV1AssetsTypeId operation middleware
+func (siw *ServerInterfaceWrapper) GetV1AssetsTypeId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
 	// ------------- Path parameter "type" -------------
-	var pType GetAssetsTypeIdParamsType
+	var pType GetV1AssetsTypeIdParamsType
 
 	err = runtime.BindStyledParameterWithOptions("simple", "type", chi.URLParam(r, "type"), &pType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
@@ -225,7 +240,7 @@ func (siw *ServerInterfaceWrapper) GetAssetsTypeId(w http.ResponseWriter, r *htt
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAssetsTypeId(w, r, pType, id)
+		siw.Handler.GetV1AssetsTypeId(w, r, pType, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -235,8 +250,8 @@ func (siw *ServerInterfaceWrapper) GetAssetsTypeId(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetFavourites operation middleware
-func (siw *ServerInterfaceWrapper) GetFavourites(w http.ResponseWriter, r *http.Request) {
+// GetV1Favourites operation middleware
+func (siw *ServerInterfaceWrapper) GetV1Favourites(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -244,7 +259,7 @@ func (siw *ServerInterfaceWrapper) GetFavourites(w http.ResponseWriter, r *http.
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetFavouritesParams
+	var params GetV1FavouritesParams
 
 	// ------------- Optional query parameter "page" -------------
 
@@ -263,7 +278,7 @@ func (siw *ServerInterfaceWrapper) GetFavourites(w http.ResponseWriter, r *http.
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetFavourites(w, r, params)
+		siw.Handler.GetV1Favourites(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -273,14 +288,14 @@ func (siw *ServerInterfaceWrapper) GetFavourites(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostFavourites operation middleware
-func (siw *ServerInterfaceWrapper) PostFavourites(w http.ResponseWriter, r *http.Request) {
+// PostV1Favourites operation middleware
+func (siw *ServerInterfaceWrapper) PostV1Favourites(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostFavourites(w, r)
+		siw.Handler.PostV1Favourites(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -290,8 +305,8 @@ func (siw *ServerInterfaceWrapper) PostFavourites(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// DeleteFavouritesId operation middleware
-func (siw *ServerInterfaceWrapper) DeleteFavouritesId(w http.ResponseWriter, r *http.Request) {
+// DeleteV1FavouritesId operation middleware
+func (siw *ServerInterfaceWrapper) DeleteV1FavouritesId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -308,7 +323,7 @@ func (siw *ServerInterfaceWrapper) DeleteFavouritesId(w http.ResponseWriter, r *
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteFavouritesId(w, r, id)
+		siw.Handler.DeleteV1FavouritesId(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -318,8 +333,8 @@ func (siw *ServerInterfaceWrapper) DeleteFavouritesId(w http.ResponseWriter, r *
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PatchFavouritesId operation middleware
-func (siw *ServerInterfaceWrapper) PatchFavouritesId(w http.ResponseWriter, r *http.Request) {
+// PatchV1FavouritesId operation middleware
+func (siw *ServerInterfaceWrapper) PatchV1FavouritesId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -336,22 +351,7 @@ func (siw *ServerInterfaceWrapper) PatchFavouritesId(w http.ResponseWriter, r *h
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchFavouritesId(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetHealth operation middleware
-func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetHealth(w, r)
+		siw.Handler.PatchV1FavouritesId(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -475,198 +475,25 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/assets/{type}/{id}", wrapper.GetAssetsTypeId)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/favourites", wrapper.GetFavourites)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/favourites", wrapper.PostFavourites)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/favourites/{id}", wrapper.DeleteFavouritesId)
-	})
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/favourites/{id}", wrapper.PatchFavouritesId)
-	})
-	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/health", wrapper.GetHealth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/assets/{type}/{id}", wrapper.GetV1AssetsTypeId)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/favourites", wrapper.GetV1Favourites)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/favourites", wrapper.PostV1Favourites)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/v1/favourites/{id}", wrapper.DeleteV1FavouritesId)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/v1/favourites/{id}", wrapper.PatchV1FavouritesId)
 	})
 
 	return r
-}
-
-type GetAssetsTypeIdRequestObject struct {
-	Type GetAssetsTypeIdParamsType `json:"type"`
-	Id   string                    `json:"id"`
-}
-
-type GetAssetsTypeIdResponseObject interface {
-	VisitGetAssetsTypeIdResponse(w http.ResponseWriter) error
-}
-
-type GetAssetsTypeId200JSONResponse Asset
-
-func (response GetAssetsTypeId200JSONResponse) VisitGetAssetsTypeIdResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAssetsTypeId401Response struct {
-}
-
-func (response GetAssetsTypeId401Response) VisitGetAssetsTypeIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GetAssetsTypeId404Response struct {
-}
-
-func (response GetAssetsTypeId404Response) VisitGetAssetsTypeIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetFavouritesRequestObject struct {
-	Params GetFavouritesParams
-}
-
-type GetFavouritesResponseObject interface {
-	VisitGetFavouritesResponse(w http.ResponseWriter) error
-}
-
-type GetFavourites200JSONResponse FavouritePage
-
-func (response GetFavourites200JSONResponse) VisitGetFavouritesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetFavourites401Response struct {
-}
-
-func (response GetFavourites401Response) VisitGetFavouritesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type PostFavouritesRequestObject struct {
-	Body *PostFavouritesJSONRequestBody
-}
-
-type PostFavouritesResponseObject interface {
-	VisitPostFavouritesResponse(w http.ResponseWriter) error
-}
-
-type PostFavourites201JSONResponse string
-
-func (response PostFavourites201JSONResponse) VisitPostFavouritesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostFavourites400Response struct {
-}
-
-func (response PostFavourites400Response) VisitPostFavouritesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type PostFavourites401Response struct {
-}
-
-func (response PostFavourites401Response) VisitPostFavouritesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteFavouritesIdRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteFavouritesIdResponseObject interface {
-	VisitDeleteFavouritesIdResponse(w http.ResponseWriter) error
-}
-
-type DeleteFavouritesId204Response struct {
-}
-
-func (response DeleteFavouritesId204Response) VisitDeleteFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteFavouritesId401Response struct {
-}
-
-func (response DeleteFavouritesId401Response) VisitDeleteFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteFavouritesId403Response struct {
-}
-
-func (response DeleteFavouritesId403Response) VisitDeleteFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(403)
-	return nil
-}
-
-type DeleteFavouritesId404Response struct {
-}
-
-func (response DeleteFavouritesId404Response) VisitDeleteFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type PatchFavouritesIdRequestObject struct {
-	Id   string `json:"id"`
-	Body *PatchFavouritesIdJSONRequestBody
-}
-
-type PatchFavouritesIdResponseObject interface {
-	VisitPatchFavouritesIdResponse(w http.ResponseWriter) error
-}
-
-type PatchFavouritesId204Response struct {
-}
-
-func (response PatchFavouritesId204Response) VisitPatchFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type PatchFavouritesId401Response struct {
-}
-
-func (response PatchFavouritesId401Response) VisitPatchFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type PatchFavouritesId403Response struct {
-}
-
-func (response PatchFavouritesId403Response) VisitPatchFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(403)
-	return nil
-}
-
-type PatchFavouritesId404Response struct {
-}
-
-func (response PatchFavouritesId404Response) VisitPatchFavouritesIdResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
 }
 
 type GetHealthRequestObject struct {
@@ -684,26 +511,199 @@ func (response GetHealth200Response) VisitGetHealthResponse(w http.ResponseWrite
 	return nil
 }
 
+type GetV1AssetsTypeIdRequestObject struct {
+	Type GetV1AssetsTypeIdParamsType `json:"type"`
+	Id   string                      `json:"id"`
+}
+
+type GetV1AssetsTypeIdResponseObject interface {
+	VisitGetV1AssetsTypeIdResponse(w http.ResponseWriter) error
+}
+
+type GetV1AssetsTypeId200JSONResponse Asset
+
+func (response GetV1AssetsTypeId200JSONResponse) VisitGetV1AssetsTypeIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetV1AssetsTypeId401Response struct {
+}
+
+func (response GetV1AssetsTypeId401Response) VisitGetV1AssetsTypeIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetV1AssetsTypeId404Response struct {
+}
+
+func (response GetV1AssetsTypeId404Response) VisitGetV1AssetsTypeIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetV1FavouritesRequestObject struct {
+	Params GetV1FavouritesParams
+}
+
+type GetV1FavouritesResponseObject interface {
+	VisitGetV1FavouritesResponse(w http.ResponseWriter) error
+}
+
+type GetV1Favourites200JSONResponse FavouritePage
+
+func (response GetV1Favourites200JSONResponse) VisitGetV1FavouritesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetV1Favourites401Response struct {
+}
+
+func (response GetV1Favourites401Response) VisitGetV1FavouritesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type PostV1FavouritesRequestObject struct {
+	Body *PostV1FavouritesJSONRequestBody
+}
+
+type PostV1FavouritesResponseObject interface {
+	VisitPostV1FavouritesResponse(w http.ResponseWriter) error
+}
+
+type PostV1Favourites201JSONResponse string
+
+func (response PostV1Favourites201JSONResponse) VisitPostV1FavouritesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostV1Favourites400Response struct {
+}
+
+func (response PostV1Favourites400Response) VisitPostV1FavouritesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type PostV1Favourites401Response struct {
+}
+
+func (response PostV1Favourites401Response) VisitPostV1FavouritesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteV1FavouritesIdRequestObject struct {
+	Id string `json:"id"`
+}
+
+type DeleteV1FavouritesIdResponseObject interface {
+	VisitDeleteV1FavouritesIdResponse(w http.ResponseWriter) error
+}
+
+type DeleteV1FavouritesId204Response struct {
+}
+
+func (response DeleteV1FavouritesId204Response) VisitDeleteV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteV1FavouritesId401Response struct {
+}
+
+func (response DeleteV1FavouritesId401Response) VisitDeleteV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteV1FavouritesId403Response struct {
+}
+
+func (response DeleteV1FavouritesId403Response) VisitDeleteV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(403)
+	return nil
+}
+
+type DeleteV1FavouritesId404Response struct {
+}
+
+func (response DeleteV1FavouritesId404Response) VisitDeleteV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PatchV1FavouritesIdRequestObject struct {
+	Id   string `json:"id"`
+	Body *PatchV1FavouritesIdJSONRequestBody
+}
+
+type PatchV1FavouritesIdResponseObject interface {
+	VisitPatchV1FavouritesIdResponse(w http.ResponseWriter) error
+}
+
+type PatchV1FavouritesId204Response struct {
+}
+
+func (response PatchV1FavouritesId204Response) VisitPatchV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type PatchV1FavouritesId401Response struct {
+}
+
+func (response PatchV1FavouritesId401Response) VisitPatchV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type PatchV1FavouritesId403Response struct {
+}
+
+func (response PatchV1FavouritesId403Response) VisitPatchV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(403)
+	return nil
+}
+
+type PatchV1FavouritesId404Response struct {
+}
+
+func (response PatchV1FavouritesId404Response) VisitPatchV1FavouritesIdResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// Fetch an asset owned by the authenticated user
-	// (GET /assets/{type}/{id})
-	GetAssetsTypeId(ctx context.Context, request GetAssetsTypeIdRequestObject) (GetAssetsTypeIdResponseObject, error)
-	// List favourites for the authenticated user
-	// (GET /favourites)
-	GetFavourites(ctx context.Context, request GetFavouritesRequestObject) (GetFavouritesResponseObject, error)
-	// Add a new favourite for the authenticated user
-	// (POST /favourites)
-	PostFavourites(ctx context.Context, request PostFavouritesRequestObject) (PostFavouritesResponseObject, error)
-	// Delete a favourite by ID
-	// (DELETE /favourites/{id})
-	DeleteFavouritesId(ctx context.Context, request DeleteFavouritesIdRequestObject) (DeleteFavouritesIdResponseObject, error)
-	// Update favourite description
-	// (PATCH /favourites/{id})
-	PatchFavouritesId(ctx context.Context, request PatchFavouritesIdRequestObject) (PatchFavouritesIdResponseObject, error)
 	// Health check
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
+	// Fetch an asset owned by the authenticated user
+	// (GET /v1/assets/{type}/{id})
+	GetV1AssetsTypeId(ctx context.Context, request GetV1AssetsTypeIdRequestObject) (GetV1AssetsTypeIdResponseObject, error)
+	// List favourites for the authenticated user
+	// (GET /v1/favourites)
+	GetV1Favourites(ctx context.Context, request GetV1FavouritesRequestObject) (GetV1FavouritesResponseObject, error)
+	// Add a new favourite for the authenticated user
+	// (POST /v1/favourites)
+	PostV1Favourites(ctx context.Context, request PostV1FavouritesRequestObject) (PostV1FavouritesResponseObject, error)
+	// Delete a favourite by ID
+	// (DELETE /v1/favourites/{id})
+	DeleteV1FavouritesId(ctx context.Context, request DeleteV1FavouritesIdRequestObject) (DeleteV1FavouritesIdResponseObject, error)
+	// Update favourite description
+	// (PATCH /v1/favourites/{id})
+	PatchV1FavouritesId(ctx context.Context, request PatchV1FavouritesIdRequestObject) (PatchV1FavouritesIdResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -735,149 +735,6 @@ type strictHandler struct {
 	options     StrictHTTPServerOptions
 }
 
-// GetAssetsTypeId operation middleware
-func (sh *strictHandler) GetAssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetAssetsTypeIdParamsType, id string) {
-	var request GetAssetsTypeIdRequestObject
-
-	request.Type = pType
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAssetsTypeId(ctx, request.(GetAssetsTypeIdRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAssetsTypeId")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAssetsTypeIdResponseObject); ok {
-		if err := validResponse.VisitGetAssetsTypeIdResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetFavourites operation middleware
-func (sh *strictHandler) GetFavourites(w http.ResponseWriter, r *http.Request, params GetFavouritesParams) {
-	var request GetFavouritesRequestObject
-
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetFavourites(ctx, request.(GetFavouritesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetFavourites")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetFavouritesResponseObject); ok {
-		if err := validResponse.VisitGetFavouritesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// PostFavourites operation middleware
-func (sh *strictHandler) PostFavourites(w http.ResponseWriter, r *http.Request) {
-	var request PostFavouritesRequestObject
-
-	var body PostFavouritesJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostFavourites(ctx, request.(PostFavouritesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostFavourites")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostFavouritesResponseObject); ok {
-		if err := validResponse.VisitPostFavouritesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteFavouritesId operation middleware
-func (sh *strictHandler) DeleteFavouritesId(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteFavouritesIdRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteFavouritesId(ctx, request.(DeleteFavouritesIdRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteFavouritesId")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteFavouritesIdResponseObject); ok {
-		if err := validResponse.VisitDeleteFavouritesIdResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// PatchFavouritesId operation middleware
-func (sh *strictHandler) PatchFavouritesId(w http.ResponseWriter, r *http.Request, id string) {
-	var request PatchFavouritesIdRequestObject
-
-	request.Id = id
-
-	var body PatchFavouritesIdJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PatchFavouritesId(ctx, request.(PatchFavouritesIdRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PatchFavouritesId")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PatchFavouritesIdResponseObject); ok {
-		if err := validResponse.VisitPatchFavouritesIdResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // GetHealth operation middleware
 func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 	var request GetHealthRequestObject
@@ -902,27 +759,170 @@ func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetV1AssetsTypeId operation middleware
+func (sh *strictHandler) GetV1AssetsTypeId(w http.ResponseWriter, r *http.Request, pType GetV1AssetsTypeIdParamsType, id string) {
+	var request GetV1AssetsTypeIdRequestObject
+
+	request.Type = pType
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetV1AssetsTypeId(ctx, request.(GetV1AssetsTypeIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetV1AssetsTypeId")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetV1AssetsTypeIdResponseObject); ok {
+		if err := validResponse.VisitGetV1AssetsTypeIdResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetV1Favourites operation middleware
+func (sh *strictHandler) GetV1Favourites(w http.ResponseWriter, r *http.Request, params GetV1FavouritesParams) {
+	var request GetV1FavouritesRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetV1Favourites(ctx, request.(GetV1FavouritesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetV1Favourites")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetV1FavouritesResponseObject); ok {
+		if err := validResponse.VisitGetV1FavouritesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostV1Favourites operation middleware
+func (sh *strictHandler) PostV1Favourites(w http.ResponseWriter, r *http.Request) {
+	var request PostV1FavouritesRequestObject
+
+	var body PostV1FavouritesJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostV1Favourites(ctx, request.(PostV1FavouritesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostV1Favourites")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostV1FavouritesResponseObject); ok {
+		if err := validResponse.VisitPostV1FavouritesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteV1FavouritesId operation middleware
+func (sh *strictHandler) DeleteV1FavouritesId(w http.ResponseWriter, r *http.Request, id string) {
+	var request DeleteV1FavouritesIdRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteV1FavouritesId(ctx, request.(DeleteV1FavouritesIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteV1FavouritesId")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteV1FavouritesIdResponseObject); ok {
+		if err := validResponse.VisitDeleteV1FavouritesIdResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PatchV1FavouritesId operation middleware
+func (sh *strictHandler) PatchV1FavouritesId(w http.ResponseWriter, r *http.Request, id string) {
+	var request PatchV1FavouritesIdRequestObject
+
+	request.Id = id
+
+	var body PatchV1FavouritesIdJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchV1FavouritesId(ctx, request.(PatchV1FavouritesIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchV1FavouritesId")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchV1FavouritesIdResponseObject); ok {
+		if err := validResponse.VisitPatchV1FavouritesIdResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/8xX32/jNgz+VwRuDxtg1M71Hg55y9rrNdvQFf1xeygKVLGYWDdbciW61zTw/z7ISmIn",
+	"VrIU7YY91bFo8iO/j6S6gFQXpVaoyMJwATbNsODN40iIM/6kKyMJr/CxQkvudWl0iYYkNkbcWqSxcI80",
+	"LxGGYMlINYM6AoE2NbIkqVXw3L9YAKqqgOEdjC+ux1/ObyCC0e3p+PPFyWeI4OR8dHUD99H253UEBh8r",
+	"aVC4b5vTaA2ntdeTb5iSCzdyZ/0MBCfu/krCwnZwqqqYoGlxAjeGzw/JCy3JghOKK+Rp1jGRinDmfcpw",
+	"yRQvMHigvys0txbNjlqXuqxy7iBdoklRUTATy4syx2v5gmFUhM8UpkoTz6/QllqJlVQCn7+F0AieR8/S",
+	"3kjKwyWY7zuuA4Sv1btDtu7hR4NTGMIPcdsG8bIHYi+YAwjfQeYby1HtYntvrpd8Fsh3Le71w77E28IF",
+	"1J/LQlKY/3IZO6AMp589Rw51UFShXG9LwQn/eTbtp63v2TUIps7n/NpVwnuZIDdoRhVl7a8zbQpOMIRf",
+	"/3R0NnVznvwprD1nRCXUzrFUU92A8Ppt+bJsdDmGCJ7Q2AYoDI6So6Tp+RIVLyUM4fgoOToGV2DKGlBx",
+	"hjz3iGZeyC7xpv+dZOAL0rm3cGPSta312XxIkl5p4I/ffPJVUXAzhyH4b1maYfpXcxQ/DeKmZ2y8cLnV",
+	"8UKKuhN+0+F1VZbaEArmjC3jBtmDVFbOMrIPEXvglZCoUnQ/uBLsIc24IftwBFE/k6+DphPtzbzEsWjK",
+	"YHiBhMbC8G4B0oV0pYHVAF2tg3ZDkKlwSRTv9uQKlNsdK0wQgYcTXDvBeFLsjbbt5D7MSqoVLUc3L8tc",
+	"pk0Z4m/WC7j1d8DUqrfnlt9/TCBxmVunr4/JoE/dreIVZdrIFxTe6GPf6EITm+pKiY2macjotsvdvcu0",
+	"ldUZUpoxrlgjJeZ2mmCTOaMMmYuKilzOKJibfWvhTde9sk/vXwdtT/U1sonfjRvm1yL7SeCUVzmxwc8Q",
+	"eW4fKzTzltxmrHXpLKSShdPPIAoMrGAwK1+wDfUhiVjBn9kgSXYF9WN2Iyp/XkZNkmg/hn9TX5ubJqCz",
+	"Sz6TqmGxQ9xhcnuNmH6XljoR2FSbnUJy9yMbkM2lttu6MX6b/KLF/P1aMnCTrjdvsG5i1D3WBq+CsD1l",
+	"esycGNzkhY1PPTOBpTBWTzyXgpkV4HdncCQE40zh9w6gfSz2xsF6CQnM0V/zNvk9bd53GT5wf7x5ngeG",
+	"pgcjXjF5j/tGZ9pMpBCo3ns2e3SMd7iYzJf6KDn5/2O2use9/o+K+/5NueMWeVBfBsru3f1f2fXoOtx2",
+	"vdbelXlacVaZfHl5HcZxrlOeZ9rS8FPyKYH6vv47AAD//2Tl+gs0EAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

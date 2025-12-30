@@ -45,11 +45,11 @@ func TestAssetsHandler_GetInsight(t *testing.T) {
 	svc := application.NewAssetService(repo)
 	h := NewAssetsHandler(svc)
 
-	req := httptest.NewRequest(http.MethodGet, "/assets/insights/ins-1", nil)
+	req := httptest.NewRequest(http.MethodGet, "/v1/assets/insights/ins-1", nil)
 	ctx := context.WithValue(req.Context(), auth.ContextKeySubject, "user-1")
 	rec := httptest.NewRecorder()
 
-	h.GetAssetsTypeId(rec, req.WithContext(ctx), Insights, "ins-1")
+	h.GetV1AssetsTypeId(rec, req.WithContext(ctx), Insights, "ins-1")
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)

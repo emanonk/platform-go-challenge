@@ -5,7 +5,7 @@ info:
 servers:
   - url: http://localhost:8080
 paths:
-  /favourites:
+  /v1/favourites:
     get:
       summary: List favourites for the authenticated user
       parameters:
@@ -54,7 +54,7 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
-  /favourites/{id}:
+  /v1/favourites/{id}:
     delete:
       summary: Delete a favourite by ID
       security:
@@ -99,7 +99,7 @@ paths:
           description: Not found
         '401':
           description: Unauthorized
-  /assets/{type}/{id}:
+  /v1/assets/{type}/{id}:
     get:
       summary: Fetch an asset owned by the authenticated user
       description: Supported types are `insights`, `audiences`, and `charts`.
