@@ -7,6 +7,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -43,6 +44,9 @@ func Middleware(cfg JWTConfig) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := readBearerToken(r.Header.Get("Authorization"))
+
+			log.Printf("Middleware: tokenStr=%s err=%v", tokenStr, err)
+
 			if err != nil {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return

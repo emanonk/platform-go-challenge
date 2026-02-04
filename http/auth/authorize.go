@@ -1,18 +1,23 @@
 package auth
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 // RequireUserMatch ensures token sub == userId in URL path (prevents IDOR).
 func RequireUserMatch(userIDFromPath func(*http.Request) (string, bool)) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sub, ok := SubjectFromContext(r.Context())
+			log.Printf("RequireUserMatch: sub=%s ok=%t", sub, ok)
 			if !ok || sub == "" {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 			userID, ok := userIDFromPath(r)
 			if !ok || userID == "" {
+				log.Printf("RequireUserMatch: userIDFromPath failed or empty userID")
 				http.Error(w, "bad request", http.StatusBadRequest)
 				return
 			}

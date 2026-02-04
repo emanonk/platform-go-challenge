@@ -47,9 +47,9 @@ func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandl
 	r := chi.NewRouter()
 
 	// Unprotected health
-	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
+	r.Get("/healtha", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		w.Write([]byte("im ok"))
 	})
 
 	if enableDocs {
@@ -62,7 +62,9 @@ func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandl
 
 	// Protected API routes (JWT required)
 	r.Group(func(api chi.Router) {
+
 		api.Use(skipAuthForPaths(jwtCfg, "/health"))
+		api.Use(LoggingMiddleware)
 		HandlerFromMux(server, api)
 	})
 
