@@ -62,9 +62,8 @@ func NewRouter(jwtCfg auth.JWTConfig, favHandler *FavouritesHandler, assetsHandl
 
 	// Protected API routes (JWT required)
 	r.Group(func(api chi.Router) {
-
-		api.Use(skipAuthForPaths(jwtCfg, "/health"))
 		api.Use(LoggingMiddleware)
+		api.Use(skipAuthForPaths(jwtCfg, "/health"))
 		HandlerFromMux(server, api)
 	})
 
